@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ashut7836-creator.github.io/ashu/sitemap.xml
