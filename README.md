@@ -36,3 +36,28 @@ NASA guidance: https://science.nasa.gov/eyes/museums/
 - No website-builder badge or vendor branding is included in this source.
 - The custom solar-system model uses illustrative sizes and orbital spacing, not scale distances.
 - This is a static site and does not require an API key, database, login, or paid backend.
+
+
+## Google Search setup
+
+The repository includes a sitemap at:
+`https://ashut7836-creator.github.io/ashu/sitemap.xml`
+
+To ask Google to crawl the site:
+
+1. Open Google Search Console: https://search.google.com/search-console
+2. Add a **URL-prefix** property: `https://ashut7836-creator.github.io/ashu/`
+3. Choose the **HTML tag** verification method. Copy the exact `google-site-verification` meta tag from Google Search Console.
+4. Add that meta tag inside the `<head>` of `index.html`, commit the change, wait for GitHub Pages to publish, then click **Verify** in Search Console.
+5. In Search Console, open **Sitemaps** and submit `sitemap.xml`.
+6. Use **URL inspection** for the home page and important planet guide URLs, then request indexing.
+
+Google's crawling and indexing are not guaranteed or instant. A sitemap helps discovery but does not guarantee indexing or rankings. Google may take days or weeks to crawl/reprocess changed pages.
+
+Useful official documentation:
+- Add a property: https://support.google.com/webmasters/answer/34592
+- Verify with an HTML tag: https://support.google.com/webmasters/answer/9008080
+- Submit a sitemap: https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap
+- Request recrawling: https://developers.google.com/search/docs/crawling-indexing/ask-google-to-recrawl
+
+Note: this GitHub Pages project currently lives at the `/ashu/` subpath. Google site-name selection has limits for subdirectory URLs; a dedicated domain or root-level site may offer a cleaner branded search identity.
