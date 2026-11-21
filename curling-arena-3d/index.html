@@ -265,7 +265,7 @@ function makeStoneMesh(team){
 }
 function addStone(team,x=0,z=RELEASE_Z,vel={x:0,y:0,z:0}){
   const mesh=makeStoneMesh(team);mesh.position.set(x,.13,z);scene.add(mesh);
-  const body=world.createRigidBody(RAPIER.RigidBodyDesc.dynamic().setTranslation(x,.13,z).setGravityScale(0).setLinearDamping(0).setAngularDamping(1.2).setCcdEnabled(true).setEnabledRotations(false,true,false));
+  const body=world.createRigidBody(RAPIER.RigidBodyDesc.dynamic().setTranslation(x,.13,z).setGravityScale(0).setLinearDamping(0).setAngularDamping(1.2).setCcdEnabled(true).enabledRotations(false,true,false));
   const collider=world.createCollider(RAPIER.ColliderDesc.cylinder(STONE_HALF_H,STONE_R*.94).setFriction(.6).setRestitution(.18).setMass(19),body);
   if(vel && (Math.abs(vel.x)+Math.abs(vel.z)>.001))body.setLinvel({x:vel.x,y:0,z:vel.z},true);
   const item={team,mesh,body,collider,spin:0,settle:0};
@@ -292,7 +292,7 @@ function updatePhysics(dt){
     const v=s.body.linvel();const speed=Math.hypot(v.x,v.z);
     if(speed>.015){
       const sweep=(s===activeStone&&sweeping);
-      const decel=sweep?1.2:1.85;
+      const decel=sweep?1.55:1.85;
       const next=Math.max(0,speed-decel*dt);
       let vx=v.x/speed*next, vz=v.z/speed*next;
       if(s.spin!==0){vx+=s.spin*speed*.004*dt;}
