@@ -81,8 +81,8 @@ footer a{color:#8ecdeb;text-decoration:none}
         <div class="sliderHints"><span>◀ LEFT</span><span>RIGHT ▶</span></div>
       </div>
       <div class="sliderBlock">
-        <div class="sliderHead"><label for="power">SHOT POWER</label><strong id="powerVal">82%</strong></div>
-        <input id="power" type="range" min="40" max="100" value="82">
+        <div class="sliderHead"><label for="power">SHOT POWER</label><strong id="powerVal">90%</strong></div>
+        <input id="power" type="range" min="40" max="100" value="90">
         <div class="sliderHints"><span>SOFT</span><span>HARD</span></div>
       </div>
       <div class="curlRow"><span class="curlLabel">STONE CURL</span><div class="curlBtns"><button class="curlBtn active" id="curlLeft">↶ LEFT</button><button class="curlBtn" id="curlRight">RIGHT ↷</button></div></div>
@@ -127,7 +127,7 @@ const STONE_R = 0.145 * SCALE;
 const STONE_HALF_H = 0.055 * SCALE;
 const HOUSE_R = 1.83 * SCALE;
 const HOUSE_Z = -13.4 * SCALE;
-const RELEASE_Z = 13.0 * SCALE;
+const RELEASE_Z = 20.5 * SCALE;
 const RED = 'red', BLUE = 'blue';
 const TEAM_COLOR = {blue:0x39bfff,red:0xff647a};
 let world, renderer, scene, camera, orbit, pmrem;
@@ -203,18 +203,18 @@ function makeSeatRows(){
 }
 function buildArena(){
   scene=new THREE.Scene();scene.background=new THREE.Color(0x061321);scene.fog=new THREE.Fog(0x081b2a,65,155);
-  camera=new THREE.PerspectiveCamera(42,1,.1,240);camera.position.set(0,26,34);
+  camera=new THREE.PerspectiveCamera(42,1,.1,240);camera.position.set(0,30,53);
   renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance'});
   renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.6));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
   renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;
-  orbit=new OrbitControls(camera,renderer.domElement);orbit.enableDamping=true;orbit.dampingFactor=.06;orbit.target.set(0,0,-7);orbit.minDistance=13;orbit.maxDistance=70;orbit.maxPolarAngle=Math.PI*.48;orbit.minPolarAngle=.12;
+  orbit=new OrbitControls(camera,renderer.domElement);orbit.enableDamping=true;orbit.dampingFactor=.06;orbit.target.set(0,0,5);orbit.minDistance=13;orbit.maxDistance=70;orbit.maxPolarAngle=Math.PI*.48;orbit.minPolarAngle=.12;
   scene.add(new THREE.HemisphereLight(0xcef1ff,0x1c3148,2.1));
   const key=new THREE.DirectionalLight(0xe8f8ff,3.6);key.position.set(-13,30,12);key.castShadow=true;key.shadow.mapSize.set(1024,1024);key.shadow.camera.left=-30;key.shadow.camera.right=30;key.shadow.camera.top=50;key.shadow.camera.bottom=-50;scene.add(key);
   const fill=new THREE.DirectionalLight(0x55bfff,1.25);fill.position.set(15,18,-24);scene.add(fill);
   const floorMat=new THREE.MeshStandardMaterial({color:0x091827,roughness:.92});
   const ground=new THREE.Mesh(new THREE.PlaneGeometry(220,220),floorMat);ground.rotation.x=-Math.PI/2;ground.position.y=-.68;ground.receiveShadow=true;scene.add(ground);
   const iceMat=new THREE.MeshPhysicalMaterial({color:0xffffff,map:makeIceTexture(),roughness:.19,metalness:.05,clearcoat:.82,clearcoatRoughness:.13,envMapIntensity:1.15});
-  const ice=new THREE.Mesh(new THREE.BoxGeometry(W,.28,L),iceMat);ice.position.y=-.16;ice.receiveShadow=true;ice.castShadow=true;scene.add(ice);
+  const ice=new THREE.Mesh(new THREE.BoxGeometry(W,.28,L),iceMat);ice.position.y=-.14;ice.receiveShadow=true;ice.castShadow=true;scene.add(ice);
   const boardMat=new THREE.MeshStandardMaterial({color:0xe6f5fb,roughness:.3,metalness:.15});
   const railMat=new THREE.MeshStandardMaterial({color:0x244d69,metalness:.65,roughness:.32});
   [-1,1].forEach(s=>{box(scene,.16,.62,L+.4,boardMat,s*(W/2+.10),.2,0);box(scene,.34,.16,L+.6,railMat,s*(W/2+.1),.57,0);});
@@ -249,7 +249,7 @@ function buildArena(){
 }
 function buildPhysics(){
   world=new RAPIER.World({x:0,y:0,z:0});world.timestep=FIXED;
-  world.createCollider(RAPIER.ColliderDesc.cuboid(W/2,.16,L/2).setTranslation(0,-.32,0).setFriction(.5));
+  world.createCollider(RAPIER.ColliderDesc.cuboid(W/2,.16,L/2).setTranslation(0,-.16,0).setFriction(.5));
 }
 function makeStoneMesh(team){
   const group=new THREE.Group();
@@ -264,8 +264,8 @@ function makeStoneMesh(team){
   return group;
 }
 function addStone(team,x=0,z=RELEASE_Z,vel={x:0,y:0,z:0}){
-  const mesh=makeStoneMesh(team);mesh.position.set(x,.17,z);scene.add(mesh);
-  const body=world.createRigidBody(RAPIER.RigidBodyDesc.dynamic().setTranslation(x,.17,z).setGravityScale(0).setLinearDamping(0).setAngularDamping(1.2).setCcdEnabled(true).enabledRotations(false,true,false));
+  const mesh=makeStoneMesh(team);mesh.position.set(x,.13,z);scene.add(mesh);
+  const body=world.createRigidBody(RAPIER.RigidBodyDesc.dynamic().setTranslation(x,.13,z).setGravityScale(0).setLinearDamping(0).setAngularDamping(1.2).setCcdEnabled(true).setEnabledRotations(false,true,false));
   const collider=world.createCollider(RAPIER.ColliderDesc.cylinder(STONE_HALF_H,STONE_R*.94).setFriction(.6).setRestitution(.18).setMass(19),body);
   if(vel && (Math.abs(vel.x)+Math.abs(vel.z)>.001))body.setLinvel({x:vel.x,y:0,z:vel.z},true);
   const item={team,mesh,body,collider,spin:0,settle:0};
@@ -292,7 +292,7 @@ function updatePhysics(dt){
     const v=s.body.linvel();const speed=Math.hypot(v.x,v.z);
     if(speed>.015){
       const sweep=(s===activeStone&&sweeping);
-      const decel=sweep?1.0:2.15;
+      const decel=sweep?1.2:1.85;
       const next=Math.max(0,speed-decel*dt);
       let vx=v.x/speed*next, vz=v.z/speed*next;
       if(s.spin!==0){vx+=s.spin*speed*.004*dt;}
@@ -324,15 +324,23 @@ function finishEnd(){
   game.complete=true;
   const target=new THREE.Vector2(0,HOUSE_Z);
   const ranked=stones.map(s=>({team:s.team,d:Math.hypot(s.mesh.position.x-target.x,s.mesh.position.z-target.y)})).filter(s=>s.d<=HOUSE_R).sort((a,b)=>a.d-b.d);
-  if(ranked.length>1&&ranked[0].team!==ranked[1].team){
-    const winner=ranked[0].team;let points=0;
-    for(const r of ranked){if(r.team===winner&&r.d<ranked.find(o=>o.team!==winner).d)points++;else break;}
-    if(winner===BLUE)game.blueScore+=points;else game.redScore+=points;
-    $('resultTitle').textContent=(winner===BLUE?'BLUE WINS THE END':'RED WINS THE END');
-    $('resultText').textContent=winner.toUpperCase()+' scores '+points+' point'+(points===1?'':'s')+'. The score is Blue '+game.blueScore+' — Red '+game.redScore+'.';
+  const blueIn=ranked.filter(s=>s.team===BLUE);
+  const redIn=ranked.filter(s=>s.team===RED);
+  const blueNear=blueIn.length?blueIn[0].d:Infinity;
+  const redNear=redIn.length?redIn[0].d:Infinity;
+  if(blueNear<redNear){
+    const points=blueIn.filter(s=>s.d<redNear).length;
+    game.blueScore+=points;
+    $('resultTitle').textContent='BLUE WINS THE END';
+    $('resultText').textContent='BLUE scores '+points+' point'+(points===1?'':'s')+'. The score is Blue '+game.blueScore+' — Red '+game.redScore+'.';
+  }else if(redNear<blueNear){
+    const points=redIn.filter(s=>s.d<blueNear).length;
+    game.redScore+=points;
+    $('resultTitle').textContent='RED WINS THE END';
+    $('resultText').textContent='RED scores '+points+' point'+(points===1?'':'s')+'. The score is Blue '+game.blueScore+' — Red '+game.redScore+'.';
   }else{
     $('resultTitle').textContent='BLANK END';
-    $('resultText').textContent='No team scored in this end. The match is level at '+game.blueScore+' — '+game.redScore+'.';
+    $('resultText').textContent='No team scored in this end. The score remains Blue '+game.blueScore+' — Red '+game.redScore+'.';
   }
   updateHud();setStatus('END COMPLETE','All 16 stones have been delivered. Check which stones are closest to the button.',BLUE);saveGame();
   $('resultModal').classList.add('show');
@@ -343,7 +351,7 @@ function resetMatch(){
   stones=[];activeStone=null;sweeping=false;lastSettle=0;
   game.shots=0;game.team=BLUE;game.blueScore=0;game.redScore=0;game.complete=false;
   $('resultModal').classList.remove('show');$('launch').disabled=false;$('sweep').classList.remove('active');
-  $('angle').value=0;$('power').value=82;updateSliderLabels();
+  $('angle').value=0;$('power').value=90;updateSliderLabels();
   setStatus('Blue team's turn','Deliver the first stone. The CPU will answer after your shot.',BLUE);updateHud();saveGame();toast('NEW MATCH READY');
 }
 function saveGame(){
