@@ -392,7 +392,7 @@ function resetMatch(){
   game.shots=0;game.team=BLUE;game.blueScore=0;game.redScore=0;game.complete=false;
   $('resultModal').classList.remove('show');$('launch').disabled=false;$('sweep').classList.remove('active');
   $('angle').value=0;$('power').value=90;updateSliderLabels();
-  setStatus('Blue team's turn','Deliver the first stone. The CPU will answer after your shot.',BLUE);updateHud();saveGame();toast('NEW MATCH READY');
+  setStatus("Blue team's turn",'Deliver the first stone. The CPU will answer after your shot.',BLUE);updateHud();saveGame();toast('NEW MATCH READY');
 }
 function saveGame(){
   if(!world||!stones)return;
