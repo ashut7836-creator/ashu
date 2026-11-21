@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#071422">
+<meta name="description" content="CURLING ARENA 3D — a mobile-friendly 3D curling game prototype.">
+<title>CURLING ARENA 3D — Ice Challenge</title>
+<style>
+:root{color-scheme:dark;--bg:#061321;--panel:#10243a;--line:rgba(183,220,246,.16);--muted:#9bb3c8;--blue:#49c6ff;--red:#ff6f83;--gold:#ffd477}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:#061321;color:#eff8ff;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+body{min-height:100svh;background:radial-gradient(ellipse at 50% -10%,#234c70 0%,transparent 54%),linear-gradient(180deg,#081a2b,#050d17);padding:max(10px,env(safe-area-inset-top)) 10px max(12px,env(safe-area-inset-bottom))}
+.app{width:min(100%,1060px);margin:auto}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:5px 2px 12px}
+.brand{display:flex;align-items:center;gap:11px}.logo{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(145deg,#a8f0ff,#1686bd);color:#06223a;font-size:23px;box-shadow:0 8px 24px #1596d544}
+h1{margin:0;font-size:clamp(16px,3.7vw,23px);letter-spacing:.13em}.tagline{margin:4px 0 0;color:#9bb3c8;font-size:9px;letter-spacing:.2em;font-weight:900}
+.pill{border:1px solid var(--line);border-radius:99px;padding:8px 11px;color:#c5d9e9;font-size:9px;letter-spacing:.12em;font-weight:900;white-space:nowrap}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:12px;align-items:start}
+.stage{position:relative;min-width:0;border:1px solid #a8ddff35;border-radius:20px;overflow:hidden;background:linear-gradient(145deg,#5faedb38,#183c5a55);box-shadow:0 18px 48px #0007}
+#view{display:block;width:100%;height:min(72svh,760px);min-height:430px;touch-action:none;outline:none}
+.stagebar{position:absolute;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;gap:8px;pointer-events:none}
+.glass{padding:8px 10px;border:1px solid #d2efff33;border-radius:11px;background:#071827b8;backdrop-filter:blur(10px);font-size:9px;font-weight:900;letter-spacing:.1em;color:#d9f3ff}
+.cameraHint{position:absolute;bottom:10px;left:10px;padding:8px 10px;border-radius:10px;background:#071827a8;color:#b7d1e2;font-size:9px;pointer-events:none}
+.panel{padding:13px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(145deg,#122d48,#0b1c2d);box-shadow:0 14px 35px #0003}
+.scorebar{display:grid;grid-template-columns:1fr auto 1fr;gap:7px;margin-bottom:10px}
+.team{padding:9px 10px;border:1px solid var(--line);border-radius:13px;background:#ffffff08}.team:last-child{text-align:right}.teamname{font-size:9px;color:var(--muted);letter-spacing:.13em;font-weight:900}.score{font-size:26px;font-weight:950;line-height:1.1;margin-top:4px;font-variant-numeric:tabular-nums}.blue .score{color:var(--blue)}.red .score{color:var(--red)}
+.end{display:grid;place-content:center;text-align:center;min-width:48px}.end b{font-size:17px;color:var(--gold)}.end span{font-size:8px;color:var(--muted);font-weight:900;letter-spacing:.13em}
+.status{padding:10px 11px;border:1px solid var(--line);border-radius:12px;background:#07182799;margin-bottom:11px}.statusmain{font-size:11px;font-weight:900}.statussub{font-size:9px;color:var(--muted);margin-top:4px;line-height:1.45}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px}.dot.blue{background:var(--blue);box-shadow:0 0 9px var(--blue)}.dot.red{background:var(--red);box-shadow:0 0 9px var(--red)}
+.modeRow{display:flex;gap:4px;padding:3px;border:1px solid var(--line);border-radius:99px;background:#061522;margin-bottom:12px}
+.mode{flex:1;border:0;border-radius:99px;padding:8px 7px;background:transparent;color:#9db7ca;font-size:9px;font-weight:900}
+.mode.active{color:#061522;background:#b5eaff}
+h2{font-size:11px;letter-spacing:.15em;margin:0 0 12px}
+.sliderBlock{margin:12px 0}.sliderHead{display:flex;justify-content:space-between;gap:8px;margin-bottom:7px;color:#bfd2e1;font-size:9px;font-weight:900;letter-spacing:.1em}.sliderHead strong{color:white;font-size:12px;letter-spacing:0}
+input[type=range]{width:100%;accent-color:#55caff;touch-action:pan-y}.sliderHints{display:flex;justify-content:space-between;color:#7896ad;font-size:8px;font-weight:800}
+.curlRow{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:13px 0}.curlLabel{font-size:9px;color:#bfd2e1;font-weight:900;letter-spacing:.1em}.curlBtns{display:flex;gap:5px}.curlBtn{border:1px solid var(--line);border-radius:10px;background:#14314c;color:#bad1e3;padding:8px 10px;font-size:9px;font-weight:900}.curlBtn.active{background:#b6eaff;color:#062033;border-color:transparent}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:14px}
+button{font:inherit;cursor:pointer;touch-action:manipulation}
+.launch{grid-column:1/-1;border:0;border-radius:12px;padding:14px;color:#052033;background:linear-gradient(100deg,#a2edff,#45baf1);font-size:11px;font-weight:1000;letter-spacing:.12em;box-shadow:0 8px 20px #23a8e133}.launch:disabled{opacity:.42;cursor:not-allowed}
+.secondary{border:1px solid var(--line);border-radius:11px;background:#16334f;color:#e1f1fc;padding:11px 8px;font-size:9px;font-weight:900}
+.sweep{border:1px solid #65d5ff66;border-radius:11px;background:linear-gradient(120deg,#113a5a,#0d2941);color:#bcefff;padding:11px 8px;font-size:9px;font-weight:1000;letter-spacing:.12em;user-select:none;-webkit-user-select:none}
+.sweep.active{background:linear-gradient(120deg,#46c7ff,#a6eeff);color:#052033;box-shadow:0 0 18px #35bfff66}
+.hint{margin-top:11px;color:#91aabd;font-size:9px;line-height:1.5}
+.toast{min-height:18px;margin:9px 2px 0;text-align:center;color:#ffdf9a;font-size:10px;font-weight:850}
+footer{text-align:center;margin:13px 0 3px;color:#6e8ba2;font-size:8px;letter-spacing:.12em;line-height:1.6}
+footer a{color:#8ecdeb;text-decoration:none}
+.modal{position:fixed;inset:0;z-index:10;display:none;place-items:center;padding:18px;background:#020914c9;backdrop-filter:blur(9px)}.modal.show{display:grid}.modalCard{width:min(100%,360px);padding:22px;border:1px solid #8bdfff55;border-radius:20px;background:linear-gradient(145deg,#15334f,#081828);box-shadow:0 25px 80px #0009;text-align:center}.modalCard h3{margin:0 0 7px;font-size:20px;letter-spacing:.08em}.modalCard p{margin:0 0 16px;color:#a9c4d7;font-size:11px;line-height:1.55}.modalActions{display:grid;gap:8px}
+@media(max-width:760px){.layout{grid-template-columns:1fr}.stage{order:0}#view{height:min(57svh,580px);min-height:390px}.panel{order:1}.controlsPanel{display:grid;grid-template-columns:1fr 1fr;column-gap:16px}.controlsPanel h2,.modeRow,.curlRow,.actions,.hint{grid-column:1/-1}.sliderBlock{margin:7px 0}.panel{padding:11px}}
+@media(max-width:390px){body{padding-left:7px;padding-right:7px}.pill{font-size:8px;padding:7px 8px}.controlsPanel{display:block}.stage{border-radius:15px}#view{min-height:360px}}
+</style>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.187.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.187.0/examples/jsm/"}}
+</script>
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="brand"><div class="logo">❄</div><div><h1>CURLING ARENA 3D</h1><p class="tagline">SLIDE · STRATEGY · SCORE</p></div></div>
+  <div class="pill">3D PLAYABLE PROTOTYPE</div>
+</header>
+<div class="layout">
+  <main class="stage">
+    <canvas id="view" aria-label="Interactive three-dimensional curling rink"></canvas>
+    <div class="stagebar"><span class="glass">ICE SHEET · 3D VIEW</span><span class="glass" id="sceneState">LOADING ARENA…</span></div>
+    <div class="cameraHint">DRAG TO ORBIT · PINCH TO ZOOM</div>
+  </main>
+  <aside class="panel">
+    <div class="scorebar">
+      <div class="team blue"><div class="teamname">BLUE · YOU</div><div class="score" id="blueScore">0</div></div>
+      <div class="end"><b id="shotCount">00</b><span>SHOTS</span></div>
+      <div class="team red"><div class="teamname" id="redName">RED · CPU</div><div class="score" id="redScore">0</div></div>
+    </div>
+    <div class="status"><div class="statusmain" id="statusMain"><span class="dot blue"></span>Blue team's turn</div><div class="statussub" id="statusSub">Set your aim and power, then release the stone.</div></div>
+    <div class="modeRow"><button class="mode active" id="cpuMode">VS CPU</button><button class="mode" id="localMode">2 PLAYERS</button></div>
+    <section class="controlsPanel">
+      <h2>SHOT CONTROLS</h2>
+      <div class="sliderBlock">
+        <div class="sliderHead"><label for="angle">AIM ANGLE</label><strong id="angleVal">0°</strong></div>
+        <input id="angle" type="range" min="-16" max="16" step="1" value="0">
+        <div class="sliderHints"><span>◀ LEFT</span><span>RIGHT ▶</span></div>
+      </div>
+      <div class="sliderBlock">
+        <div class="sliderHead"><label for="power">SHOT POWER</label><strong id="powerVal">82%</strong></div>
+        <input id="power" type="range" min="40" max="100" value="82">
+        <div class="sliderHints"><span>SOFT</span><span>HARD</span></div>
+      </div>
+      <div class="curlRow"><span class="curlLabel">STONE CURL</span><div class="curlBtns"><button class="curlBtn active" id="curlLeft">↶ LEFT</button><button class="curlBtn" id="curlRight">RIGHT ↷</button></div></div>
+      <div class="actions">
+        <button class="launch" id="launch">RELEASE STONE ↗</button>
+        <button class="sweep" id="sweep">HOLD TO SWEEP</button>
+        <button class="secondary" id="newMatch">NEW MATCH</button>
+      </div>
+      <div class="hint" id="hint">A quick one-end match: 8 stones per team. Hold SWEEP while your stone slides to help it travel farther.</div>
+    </section>
+  </aside>
+</div>
+<div class="toast" id="toast" aria-live="polite"></div>
+<footer>3D GAME STUDY BUILD · PHYSICS: RAPIER · <a href="https://polyhaven.com/a/studio_small_06" target="_blank" rel="noopener">ENVIRONMENT LIGHTING: POLY HAVEN (CC0)</a> · NO BUILDER WATERMARK</footer>
+</div>
+<div class="modal" id="resumeModal">
+  <div class="modalCard">
+    <h3>WELCOME BACK</h3>
+    <p id="resumeText">A saved match was found on this device. Continue where you left off?</p>
+    <div class="modalActions"><button class="launch" id="resumeBtn">RESUME MATCH</button><button class="secondary" id="freshBtn">START NEW MATCH</button></div>
+  </div>
+</div>
+<div class="modal" id="resultModal">
+  <div class="modalCard">
+    <h3 id="resultTitle">END COMPLETE</h3>
+    <p id="resultText">The closest stones decide the score.</p>
+    <div class="modalActions"><button class="launch" id="againBtn">PLAY ANOTHER END</button></div>
+  </div>
+</div>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+import RAPIER from 'https://cdn.jsdelivr.net/npm/@dimforge/rapier3d-compat@0.21.0/rapier.es.js';
+
+const $ = id => document.getElementById(id);
+const canvas = $('view');
+const W = 4.75 * 2;
+const L = 45.72 * 2;
+const SCALE = 2;
+const STONE_R = 0.145 * SCALE;
+const STONE_HALF_H = 0.055 * SCALE;
+const HOUSE_R = 1.83 * SCALE;
+const HOUSE_Z = -13.4 * SCALE;
+const RELEASE_Z = 13.0 * SCALE;
+const RED = 'red', BLUE = 'blue';
+const TEAM_COLOR = {blue:0x39bfff,red:0xff647a};
+let world, renderer, scene, camera, orbit, pmrem;
+let stones = [], activeStone = null, sweeping = false, lastSettle = 0, aiTimer = 0;
+let game = {mode:'cpu',team:BLUE,shots:0,blueScore:0,redScore:0,complete:false,spin:-1};
+let clock = new THREE.Clock();
+let accumulator = 0;
+let lastSaveAt = 0;
+const FIXED = 1/60;
+const SAVE_KEY = 'curling-arena-3d-save-v1';
+
+function setStatus(title,sub,team=game.team){
+  $('statusMain').innerHTML = '<span class="dot '+team+'"></span>'+title;
+  $('statusSub').textContent = sub;
+  $('sceneState').textContent = activeStone ? 'STONE IN PLAY' : (game.complete ? 'END COMPLETE' : 'READY TO THROW');
+}
+function updateHud(){
+  $('blueScore').textContent = game.blueScore;
+  $('redScore').textContent = game.redScore;
+  $('shotCount').textContent = String(game.shots).padStart(2,'0');
+  $('redName').textContent = game.mode==='cpu' ? 'RED · CPU' : 'RED · PLAYER 2';
+  $('cpuMode').classList.toggle('active',game.mode==='cpu');
+  $('localMode').classList.toggle('active',game.mode==='local');
+  $('launch').disabled = !!activeStone || game.complete || (game.mode==='cpu' && game.team===RED);
+}
+function toast(msg){ $('toast').textContent=msg; }
+function makeIceTexture(){
+  const c=document.createElement('canvas');c.width=512;c.height=1024;
+  const x=c.getContext('2d');
+  const g=x.createLinearGradient(0,0,512,1024);g.addColorStop(0,'#d7f5ff');g.addColorStop(.45,'#bce7f8');g.addColorStop(1,'#e7f9ff');x.fillStyle=g;x.fillRect(0,0,512,1024);
+  for(let i=0;i<10000;i++){const a=Math.random()*.09;x.fillStyle='rgba(255,255,255,'+a+')';x.fillRect(Math.random()*512,Math.random()*1024,1+Math.random()*2,1+Math.random()*3);}
+  for(let i=0;i<95;i++){x.strokeStyle='rgba(255,255,255,'+(Math.random()*.13)+')';x.lineWidth=.5+Math.random();const xx=Math.random()*512,yy=Math.random()*1024;x.beginPath();x.moveTo(xx,yy);x.lineTo(xx+(Math.random()-.5)*26,yy+8+Math.random()*55);x.stroke();}
+  const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(1,2);return t;
+}
+function box(parent,w,h,d,mat,x,y,z){
+  const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;parent.add(m);return m;
+}
+function line(parent,x1,z1,x2,z2,color,width=.035,y=.028){
+  const dx=x2-x1,dz=z2-z1,len=Math.hypot(dx,dz);
+  const m=new THREE.Mesh(new THREE.BoxGeometry(width,.012,len),new THREE.MeshBasicMaterial({color}));
+  m.position.set((x1+x2)/2,y,(z1+z2)/2);m.rotation.y=Math.atan2(dx,dz);parent.add(m);return m;
+}
+function addHouse(z){
+  const group=new THREE.Group();scene.add(group);group.position.z=z;
+  const rings=[
+    {r:HOUSE_R,c:0x2d8ec1,inner:HOUSE_R-.12},
+    {r:HOUSE_R*.66,c:0xe34c5d,inner:HOUSE_R*.66-.10},
+    {r:HOUSE_R*.33,c:0xffffff,inner:HOUSE_R*.33-.08}
+  ];
+  rings.forEach(o=>{const m=new THREE.Mesh(new THREE.RingGeometry(Math.max(0,o.inner),o.r,96),new THREE.MeshBasicMaterial({color:o.c,side:THREE.DoubleSide}));m.rotation.x=-Math.PI/2;m.position.y=.025;group.add(m);});
+  const button=new THREE.Mesh(new THREE.CircleGeometry(.30,48),new THREE.MeshBasicMaterial({color:0x348fc1}));button.rotation.x=-Math.PI/2;button.position.y=.032;group.add(button);
+  const tee=box(group,W,.014,.045,new THREE.MeshBasicMaterial({color:0xd9f7ff}),0,.04,0);tee.position.z=0;
+}
+function makeSeatRows(){
+  const seatMat1=new THREE.MeshStandardMaterial({color:0x164768,roughness:.72});
+  const seatMat2=new THREE.MeshStandardMaterial({color:0x0e2d48,roughness:.72});
+  const seatMat3=new THREE.MeshStandardMaterial({color:0x2f6689,roughness:.72});
+  [-1,1].forEach(side=>{
+    const x=side*8.5;
+    box(scene,4.5,1.0,66,new THREE.MeshStandardMaterial({color:0x10263a,roughness:.9}),x,-.25,0);
+    for(let row=0;row<5;row++){
+      const z0=-29+row*.18;
+      const y=.55+row*.48;
+      box(scene,4.2,.38,63, new THREE.MeshStandardMaterial({color:row%2?0x183a55:0x102e47,roughness:.9}),x,y,z0);
+      const geo=new THREE.BoxGeometry(.42,.32,.58);
+      const mat=[seatMat1,seatMat2,seatMat3][row%3];
+      const count=45;const seats=new THREE.InstancedMesh(geo,mat,count);
+      const dummy=new THREE.Object3D();
+      for(let i=0;i<count;i++){dummy.position.set(x-side*1.5,y+.28,-30+i*1.36);dummy.rotation.y=side===1?0:Math.PI;dummy.updateMatrix();seats.setMatrixAt(i,dummy.matrix);}
+      seats.castShadow=true;scene.add(seats);
+    }
+  });
+}
+function buildArena(){
+  scene=new THREE.Scene();scene.background=new THREE.Color(0x061321);scene.fog=new THREE.Fog(0x081b2a,65,155);
+  camera=new THREE.PerspectiveCamera(42,1,.1,240);camera.position.set(0,26,34);
+  renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance'});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.6));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+  renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;
+  orbit=new OrbitControls(camera,renderer.domElement);orbit.enableDamping=true;orbit.dampingFactor=.06;orbit.target.set(0,0,-7);orbit.minDistance=13;orbit.maxDistance=70;orbit.maxPolarAngle=Math.PI*.48;orbit.minPolarAngle=.12;
+  scene.add(new THREE.HemisphereLight(0xcef1ff,0x1c3148,2.1));
+  const key=new THREE.DirectionalLight(0xe8f8ff,3.6);key.position.set(-13,30,12);key.castShadow=true;key.shadow.mapSize.set(1024,1024);key.shadow.camera.left=-30;key.shadow.camera.right=30;key.shadow.camera.top=50;key.shadow.camera.bottom=-50;scene.add(key);
+  const fill=new THREE.DirectionalLight(0x55bfff,1.25);fill.position.set(15,18,-24);scene.add(fill);
+  const floorMat=new THREE.MeshStandardMaterial({color:0x091827,roughness:.92});
+  const ground=new THREE.Mesh(new THREE.PlaneGeometry(220,220),floorMat);ground.rotation.x=-Math.PI/2;ground.position.y=-.68;ground.receiveShadow=true;scene.add(ground);
+  const iceMat=new THREE.MeshPhysicalMaterial({color:0xffffff,map:makeIceTexture(),roughness:.19,metalness:.05,clearcoat:.82,clearcoatRoughness:.13,envMapIntensity:1.15});
+  const ice=new THREE.Mesh(new THREE.BoxGeometry(W,.28,L),iceMat);ice.position.y=-.16;ice.receiveShadow=true;ice.castShadow=true;scene.add(ice);
+  const boardMat=new THREE.MeshStandardMaterial({color:0xe6f5fb,roughness:.3,metalness:.15});
+  const railMat=new THREE.MeshStandardMaterial({color:0x244d69,metalness:.65,roughness:.32});
+  [-1,1].forEach(s=>{box(scene,.16,.62,L+.4,boardMat,s*(W/2+.10),.2,0);box(scene,.34,.16,L+.6,railMat,s*(W/2+.1),.57,0);});
+  [-1,1].forEach(s=>{box(scene,W+.5,.62,.16,boardMat,0,.2,s*(L/2+.1));box(scene,W+.8,.16,.34,railMat,0,.57,s*(L/2+.1));});
+  const glass=new THREE.MeshPhysicalMaterial({color:0x9ddfff,transparent:true,opacity:.09,roughness:.08,metalness:.2,side:THREE.DoubleSide});
+  [-1,1].forEach(s=>{const m=new THREE.Mesh(new THREE.BoxGeometry(.08,2.0,L),glass);m.position.set(s*(W/2+.26),1.45,0);scene.add(m);});
+  const midMat=new THREE.MeshBasicMaterial({color:0xd5f6ff});
+  box(scene,.025,.012,L-.8,midMat,0,.01,0);
+  [-1,1].forEach(s=>{
+    const end=s*HOUSE_Z;
+    addHouse(end);
+    const hog=end-s*12.8;
+    box(scene,W,.018,.045,new THREE.MeshBasicMaterial({color:0xdcefff}),0,.035,hog);
+    box(scene,W,.018,.045,new THREE.MeshBasicMaterial({color:0xe85d70}),0,.036,end-s*3.55);
+    box(scene,W,.018,.055,new THREE.MeshBasicMaterial({color:0xffffff}),0,.036,end+s*3.55);
+    [-1,1].forEach(side=>box(scene,.55,.09,.18,railMat,side*.78,.08,s*(L/2-1.5)));
+  });
+  makeSeatRows();
+  const roof=new THREE.Mesh(new THREE.BoxGeometry(30,.5,110),new THREE.MeshStandardMaterial({color:0x071521,roughness:.8,metalness:.15}));roof.position.set(0,12,0);scene.add(roof);
+  for(let i=0;i<8;i++){
+    const z=-34+i*9.7;
+    const bar=box(scene,8,.12,.55,new THREE.MeshStandardMaterial({color:0x25445c,emissive:0x15324a,emissiveIntensity:.7,metalness:.7,roughness:.25}),0,10.8,z);
+    const light=new THREE.PointLight(0xbbeaff,18,28,2);light.position.set(0,9.9,z);scene.add(light);
+  }
+  // Poly Haven environment lighting: a compact 1K studio HDRI. Arena lights remain as a fallback.
+  const hdriUrl='https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/studio_small_06_1k.hdr';
+  new RGBELoader().setDataType(THREE.HalfFloatType).load(hdriUrl,hdr=>{
+    try{pmrem=new THREE.PMREMGenerator(renderer);const env=pmrem.fromEquirectangular(hdr).texture;scene.environment=env;hdr.dispose();$('sceneState').textContent='POLY HAVEN LIGHTING READY';}
+    catch(e){console.warn('HDRI processing skipped',e);}
+  },undefined,e=>{console.info('Using built-in arena lights; Poly Haven HDRI could not be loaded.',e);});
+  buildPhysics();
+}
+function buildPhysics(){
+  world=new RAPIER.World({x:0,y:0,z:0});world.timestep=FIXED;
+  world.createCollider(RAPIER.ColliderDesc.cuboid(W/2,.16,L/2).setTranslation(0,-.32,0).setFriction(.5));
+}
+function makeStoneMesh(team){
+  const group=new THREE.Group();
+  const granite=new THREE.MeshPhysicalMaterial({color:0x303844,roughness:.28,metalness:.24,clearcoat:.62,clearcoatRoughness:.22});
+  const rimMat=new THREE.MeshStandardMaterial({color:0x151d27,metalness:.45,roughness:.28});
+  const handleMat=new THREE.MeshStandardMaterial({color:TEAM_COLOR[team],metalness:.38,roughness:.22});
+  const base=new THREE.Mesh(new THREE.CylinderGeometry(STONE_R*.93,STONE_R,STONE_HALF_H*2,48),granite);base.castShadow=true;base.receiveShadow=true;group.add(base);
+  const rim=new THREE.Mesh(new THREE.TorusGeometry(STONE_R*.82,.035,10,40),rimMat);rim.rotation.x=Math.PI/2;rim.position.y=STONE_HALF_H*.78;group.add(rim);
+  const handleBase=new THREE.Mesh(new THREE.CylinderGeometry(.105,.105,.055,24),handleMat);handleBase.position.y=STONE_HALF_H+ .045;handleBase.castShadow=true;group.add(handleBase);
+  const arch=new THREE.Mesh(new THREE.TorusGeometry(.16,.035,10,32,Math.PI),handleMat);arch.rotation.x=Math.PI/2;arch.position.y=STONE_HALF_H+.11;arch.castShadow=true;group.add(arch);
+  [-1,1].forEach(z=>{const stem=new THREE.Mesh(new THREE.CylinderGeometry(.028,.028,.10,12),handleMat);stem.position.set(0,STONE_HALF_H+.08,z*.13);group.add(stem);});
+  return group;
+}
+function addStone(team,x=0,z=RELEASE_Z,vel={x:0,y:0,z:0}){
+  const mesh=makeStoneMesh(team);mesh.position.set(x,.17,z);scene.add(mesh);
+  const body=world.createRigidBody(RAPIER.RigidBodyDesc.dynamic().setTranslation(x,.17,z).setGravityScale(0).setLinearDamping(0).setAngularDamping(1.2).setCcdEnabled(true).enabledRotations(false,true,false));
+  const collider=world.createCollider(RAPIER.ColliderDesc.cylinder(STONE_HALF_H,STONE_R*.94).setFriction(.6).setRestitution(.18).setMass(19),body);
+  if(vel && (Math.abs(vel.x)+Math.abs(vel.z)>.001))body.setLinvel({x:vel.x,y:0,z:vel.z},true);
+  const item={team,mesh,body,collider,spin:0,settle:0};
+  stones.push(item);return item;
+}
+function launchShot(isAI=false){
+  if(activeStone||game.complete||(!isAI&&game.mode==='cpu'&&game.team===RED))return;
+  const angle=(isAI?(Math.random()*10-5):Number($('angle').value))*Math.PI/180;
+  const power=isAI?Math.round(72+Math.random()*25):Number($('power').value);
+  const speed=power*.175;
+  const stone=addStone(game.team,0,RELEASE_Z);
+  stone.spin=isAI?(Math.random()>.5?1:-1):game.spin;
+  stone.body.setLinvel({x:Math.sin(angle)*speed,y:0,z:-Math.cos(angle)*speed},true);
+  stone.body.setAngvel({x:0,y:stone.spin*1.1,z:0},true);
+  activeStone=stone;lastSettle=0;sweeping=false;
+  $('sweep').classList.remove('active');
+  $('launch').disabled=true;
+  setStatus(isAI?'CPU STONE IN PLAY':'STONE IN PLAY',isAI?'The red team is delivering.':'Hold SWEEP while the stone moves to help it travel farther.',game.team);
+  toast((game.team===BLUE?'BLUE':'RED')+' STONE RELEASED');
+  updateHud();saveGame();
+}
+function updatePhysics(dt){
+  for(const s of stones){
+    const v=s.body.linvel();const speed=Math.hypot(v.x,v.z);
+    if(speed>.015){
+      const sweep=(s===activeStone&&sweeping);
+      const decel=sweep?1.0:2.15;
+      const next=Math.max(0,speed-decel*dt);
+      let vx=v.x/speed*next, vz=v.z/speed*next;
+      if(s.spin!==0){vx+=s.spin*speed*.004*dt;}
+      s.body.setLinvel({x:vx,y:0,z:vz},true);
+    }else if(speed>0){
+      s.body.setLinvel({x:0,y:0,z:0},true);
+    }
+  }
+  world.step();
+  for(const s of stones){
+    const p=s.body.translation(),r=s.body.rotation();s.mesh.position.set(p.x,p.y,p.z);s.mesh.quaternion.set(r.x,r.y,r.z,r.w);
+  }
+  if(activeStone){
+    const v=activeStone.body.linvel(),speed=Math.hypot(v.x,v.z);
+    if(speed<.12){lastSettle+=dt;}else lastSettle=0;
+    if(lastSettle>.55){activeStone.body.setLinvel({x:0,y:0,z:0},true);activeStone=null;lastSettle=0;onShotSettled();}
+  }
+}
+function onShotSettled(){
+  game.shots++;
+  game.team=game.team===BLUE?RED:BLUE;
+  saveGame();updateHud();
+  if(game.shots>=16){finishEnd();return;}
+  setStatus(game.team===BLUE?'Blue team — your turn':(game.mode==='cpu'?'Red team is thinking':'Red team — player 2'),game.mode==='cpu'&&game.team===RED?'The CPU is lining up its next stone.':'Set your next shot. Aim, choose power and release.',game.team);
+  if(game.mode==='cpu'&&game.team===RED){$('launch').disabled=true;aiTimer=1.0;}
+  else{$('launch').disabled=false;}
+}
+function finishEnd(){
+  game.complete=true;
+  const target=new THREE.Vector2(0,HOUSE_Z);
+  const ranked=stones.map(s=>({team:s.team,d:Math.hypot(s.mesh.position.x-target.x,s.mesh.position.z-target.y)})).filter(s=>s.d<=HOUSE_R).sort((a,b)=>a.d-b.d);
+  if(ranked.length>1&&ranked[0].team!==ranked[1].team){
+    const winner=ranked[0].team;let points=0;
+    for(const r of ranked){if(r.team===winner&&r.d<ranked.find(o=>o.team!==winner).d)points++;else break;}
+    if(winner===BLUE)game.blueScore+=points;else game.redScore+=points;
+    $('resultTitle').textContent=(winner===BLUE?'BLUE WINS THE END':'RED WINS THE END');
+    $('resultText').textContent=winner.toUpperCase()+' scores '+points+' point'+(points===1?'':'s')+'. The score is Blue '+game.blueScore+' — Red '+game.redScore+'.';
+  }else{
+    $('resultTitle').textContent='BLANK END';
+    $('resultText').textContent='No team scored in this end. The match is level at '+game.blueScore+' — '+game.redScore+'.';
+  }
+  updateHud();setStatus('END COMPLETE','All 16 stones have been delivered. Check which stones are closest to the button.',BLUE);saveGame();
+  $('resultModal').classList.add('show');
+}
+function resetMatch(){
+  if(aiTimer)aiTimer=0;
+  stones.forEach(s=>{scene.remove(s.mesh);world.removeRigidBody(s.body);});
+  stones=[];activeStone=null;sweeping=false;lastSettle=0;
+  game.shots=0;game.team=BLUE;game.blueScore=0;game.redScore=0;game.complete=false;
+  $('resultModal').classList.remove('show');$('launch').disabled=false;$('sweep').classList.remove('active');
+  $('angle').value=0;$('power').value=82;updateSliderLabels();
+  setStatus('Blue team's turn','Deliver the first stone. The CPU will answer after your shot.',BLUE);updateHud();saveGame();toast('NEW MATCH READY');
+}
+function saveGame(){
+  if(!world||!stones)return;
+  try{
+    const data={version:1,mode:game.mode,team:game.team,shots:game.shots,blueScore:game.blueScore,redScore:game.redScore,complete:game.complete,spin:game.spin,stones:stones.map(s=>{const p=s.body.translation(),v=s.body.linvel();return {team:s.team,p:[p.x,p.y,p.z],v:[v.x,v.y,v.z],spin:s.spin};})};
+    localStorage.setItem(SAVE_KEY,JSON.stringify(data));
+  }catch(e){console.warn('Could not save match',e);}
+}
+function getSaved(){try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');return s&&s.version===1?s:null;}catch(e){return null;}}
+function restoreGame(data){
+  stones.forEach(s=>{scene.remove(s.mesh);world.removeRigidBody(s.body);});stones=[];activeStone=null;
+  game={mode:data.mode||'cpu',team:data.team||BLUE,shots:data.shots||0,blueScore:data.blueScore||0,redScore:data.redScore||0,complete:!!data.complete,spin:data.spin||-1};
+  (data.stones||[]).forEach(r=>{const s=addStone(r.team,r.p[0],r.p[2],{x:r.v[0],y:r.v[1],z:r.v[2]});s.mesh.position.set(r.p[0],r.p[1],r.p[2]);s.body.setTranslation({x:r.p[0],y:r.p[1],z:r.p[2]},true);s.spin=r.spin||0;if(Math.hypot(r.v[0],r.v[2])>.12)activeStone=s;});
+  if(game.complete){$('resultModal').classList.add('show');$('resultTitle').textContent='MATCH SAVED';$('resultText').textContent='This end is complete. Start another end to play again.';}
+  updateHud();setStatus(activeStone?'Resuming stone in motion':(game.team===BLUE?'Blue team — your turn':'Red team — next turn'),'Your saved match has been restored on this device.',game.team);
+  if(!activeStone&&game.mode==='cpu'&&game.team===RED&&!game.complete)aiTimer=1.0;
+  saveGame();
+}
+function updateSliderLabels(){$('angleVal').textContent=$('angle').value+'°';$('powerVal').textContent=$('power').value+'%';}
+function animate(){
+  requestAnimationFrame(animate);
+  const dt=Math.min(clock.getDelta(),.05);
+  if(world){
+    accumulator+=dt;
+    while(accumulator>=FIXED){updatePhysics(FIXED);accumulator-=FIXED;}
+  }
+  if(aiTimer>0){aiTimer-=dt;if(aiTimer<=0&&game.mode==='cpu'&&game.team===RED&&!game.complete&&!activeStone)launchShot(true);}
+  if(activeStone&&sweeping){
+    const p=activeStone.mesh.position;
+    if(Math.random()<.42){const dot=new THREE.Mesh(new THREE.SphereGeometry(.025,6,6),new THREE.MeshBasicMaterial({color:0xdaf7ff,transparent:true,opacity:.62}));dot.position.set(p.x+(Math.random()-.5)*.65,.035,p.z+.48);scene.add(dot);setTimeout(()=>{scene.remove(dot);dot.geometry.dispose();dot.material.dispose();},380);}
+  }
+  orbit.update();renderer.render(scene,camera);
+  if(performance.now()-lastSaveAt>1000){saveGame();lastSaveAt=performance.now();}
+}
+function resize(){
+  const w=canvas.clientWidth,h=canvas.clientHeight;if(!w||!h)return;
+  renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();
+}
+function initButtons(){
+  $('angle').addEventListener('input',updateSliderLabels);$('power').addEventListener('input',updateSliderLabels);
+  $('launch').addEventListener('click',()=>launchShot(false));
+  $('curlLeft').addEventListener('click',()=>{game.spin=-1;$('curlLeft').classList.add('active');$('curlRight').classList.remove('active');});
+  $('curlRight').addEventListener('click',()=>{game.spin=1;$('curlRight').classList.add('active');$('curlLeft').classList.remove('active');});
+  const sweepOn=e=>{e.preventDefault();if(activeStone){sweeping=true;$('sweep').classList.add('active');toast('SWEEPING — REDUCING ICE FRICTION');}};
+  const sweepOff=()=>{sweeping=false;$('sweep').classList.remove('active');};
+  $('sweep').addEventListener('pointerdown',sweepOn);$('sweep').addEventListener('pointerup',sweepOff);$('sweep').addEventListener('pointercancel',sweepOff);$('sweep').addEventListener('pointerleave',sweepOff);
+  $('cpuMode').addEventListener('click',()=>{if(game.shots||activeStone){toast('START A NEW MATCH TO CHANGE MODE');return;}game.mode='cpu';updateHud();setStatus('Blue team — your turn','You play blue; the CPU plays red.',BLUE);});
+  $('localMode').addEventListener('click',()=>{if(game.shots||activeStone){toast('START A NEW MATCH TO CHANGE MODE');return;}game.mode='local';updateHud();setStatus('Blue team — player 1','Pass the device after each shot.',BLUE);});
+  $('newMatch').addEventListener('click',resetMatch);$('againBtn').addEventListener('click',resetMatch);
+  $('resumeBtn').addEventListener('click',()=>{$('resumeModal').classList.remove('show');const s=getSaved();if(s)restoreGame(s);else resetMatch();});
+  $('freshBtn').addEventListener('click',()=>{$('resumeModal').classList.remove('show');resetMatch();});
+  window.addEventListener('resize',resize);window.addEventListener('pagehide',saveGame);
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)saveGame();});
+}
+async function start(){
+  try{
+    $('sceneState').textContent='BUILDING 3D ARENA…';
+    await RAPIER.init();
+    buildArena();resize();initButtons();updateSliderLabels();
+    const saved=getSaved();
+    if(saved && !saved.complete && (saved.shots>0||(saved.stones||[]).length>0)){
+      $('resumeText').textContent='A match with '+saved.shots+' of 16 stones delivered was found. Resume it or start a fresh match.';
+      $('resumeModal').classList.add('show');
+    }else if(saved&&saved.complete){
+      game={mode:saved.mode||'cpu',team:saved.team||BLUE,shots:16,blueScore:saved.blueScore||0,redScore:saved.redScore||0,complete:true,spin:-1};
+      (saved.stones||[]).forEach(r=>addStone(r.team,r.p[0],r.p[2],{x:0,y:0,z:0}));
+      updateHud();setStatus('End complete','Start a new match to play another end.',BLUE);$('resultModal').classList.add('show');$('resultTitle').textContent='PREVIOUS END COMPLETE';$('resultText').textContent='Blue '+game.blueScore+' — Red '+game.redScore+'.';
+    }else{resetMatch();}
+    animate();
+  }catch(err){
+    console.error(err);$('sceneState').textContent='LOAD ERROR';
+    $('statusMain').textContent='The 3D game could not start';
+    $('statusSub').textContent='Check your internet connection and reload. The game loads Three.js and Rapier from public CDNs.';
+    toast('3D ENGINE ERROR: '+(err.message||'unknown error'));
+  }
+}
+start();
+</script>
+</body>
+</html>
