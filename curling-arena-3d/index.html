@@ -112,6 +112,27 @@ footer a{color:#8ecdeb;text-decoration:none}
     <div class="modalActions"><button class="launch" id="againBtn">PLAY ANOTHER END</button></div>
   </div>
 </div>
+<script>
+(function(){
+  function showStartupError(message){
+    const state=document.getElementById('sceneState');
+    const status=document.getElementById('statusMain');
+    const sub=document.getElementById('statusSub');
+    const toast=document.getElementById('toast');
+    if(state) state.textContent='STARTUP ERROR';
+    if(status) status.textContent='The 3D game could not start';
+    if(sub) sub.textContent='Reload the page. If the problem continues, share this error: '+message;
+    if(toast) toast.textContent='STARTUP ERROR: '+message;
+  }
+  window.addEventListener('error',function(event){
+    if(event&&event.message) showStartupError(event.message);
+  });
+  window.addEventListener('unhandledrejection',function(event){
+    const reason=event&&event.reason;
+    showStartupError(reason&&reason.message?reason.message:String(reason||'module loading failed'));
+  });
+})();
+</script>
 <script type="module">
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
