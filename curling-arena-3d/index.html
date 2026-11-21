@@ -20,7 +20,7 @@ h1{margin:0;font-size:clamp(16px,3.7vw,23px);letter-spacing:.13em}.tagline{margi
 .stage{position:relative;min-width:0;border:1px solid #a8ddff35;border-radius:20px;overflow:hidden;background:linear-gradient(145deg,#5faedb38,#183c5a55);box-shadow:0 18px 48px #0007}
 #view{display:block;width:100%;height:min(72svh,760px);min-height:430px;touch-action:none;outline:none}
 .stagebar{position:absolute;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;gap:8px;pointer-events:none}
-.glass{padding:8px 10px;border:1px solid #d2efff33;border-radius:11px;background:#071827b8;backdrop-filter:blur(10px);font-size:9px;font-weight:900;letter-spacing:.1em;color:#d9f3ff}
+.glass{padding:8px 10px;border:1px solid #d2efff33;border-radius:11px;background:#071827b8;backdrop-filter:blur(10px);font-size:9px;font-weight:900;letter-spacing:.1em;color:#d9f3ff}.glass:active{background:#17415d}
 .cameraHint{position:absolute;bottom:10px;left:10px;padding:8px 10px;border-radius:10px;background:#071827a8;color:#b7d1e2;font-size:9px;pointer-events:none}
 .panel{padding:13px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(145deg,#122d48,#0b1c2d);box-shadow:0 14px 35px #0003}
 .scorebar{display:grid;grid-template-columns:1fr auto 1fr;gap:7px;margin-bottom:10px}
@@ -62,7 +62,7 @@ footer a{color:#8ecdeb;text-decoration:none}
 <div class="layout">
   <main class="stage">
     <canvas id="view" aria-label="Interactive three-dimensional curling rink"></canvas>
-    <div class="stagebar"><span class="glass">ICE SHEET · 3D VIEW</span><span class="glass" id="sceneState">LOADING ARENA…</span></div>
+    <div class="stagebar"><span class="glass">ICE SHEET · 3D VIEW</span><div style="display:flex;gap:6px;align-items:center"><button class="glass" id="resetCamera" type="button" style="pointer-events:auto;color:#d9f3ff">RESET VIEW</button><span class="glass" id="sceneState">LOADING ARENA…</span></div></div>
     <div class="cameraHint">DRAG TO ORBIT · PINCH TO ZOOM</div>
   </main>
   <aside class="panel">
@@ -227,7 +227,7 @@ function buildArena(){
   renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance'});
   renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.25));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFShadowMap;
   renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;
-  orbit=new OrbitControls(camera,renderer.domElement);orbit.enableDamping=true;orbit.dampingFactor=.06;orbit.target.set(0,0,5);orbit.minDistance=13;orbit.maxDistance=70;orbit.maxPolarAngle=Math.PI*.48;orbit.minPolarAngle=.12;
+  orbit=new OrbitControls(camera,renderer.domElement);orbit.enableDamping=true;orbit.dampingFactor=.06;orbit.enablePan=false;orbit.target.set(0,0,5);orbit.minDistance=34;orbit.maxDistance=82;orbit.maxPolarAngle=1.20;orbit.minPolarAngle=.28;
   scene.add(new THREE.HemisphereLight(0xcef1ff,0x1c3148,2.1));
   const key=new THREE.DirectionalLight(0xe8f8ff,3.6);key.position.set(-13,30,12);key.castShadow=true;key.shadow.mapSize.set(768,768);key.shadow.camera.left=-30;key.shadow.camera.right=30;key.shadow.camera.top=50;key.shadow.camera.bottom=-50;scene.add(key);
   const fill=new THREE.DirectionalLight(0x55bfff,1.25);fill.position.set(15,18,-24);scene.add(fill);
@@ -448,6 +448,11 @@ function animate(){
   orbit.update();renderer.render(scene,camera);
   if(performance.now()-lastSaveAt>1000){saveGame();lastSaveAt=performance.now();}
 }
+function resetCameraView(){
+  camera.position.set(0,30,53);
+  orbit.target.set(0,0,5);
+  orbit.update();
+}
 function resize(){
   const w=canvas.clientWidth,h=canvas.clientHeight;if(!w||!h)return;
   renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();
@@ -455,6 +460,7 @@ function resize(){
 function initButtons(){
   $('angle').addEventListener('input',updateSliderLabels);$('power').addEventListener('input',updateSliderLabels);
   $('launch').addEventListener('click',()=>launchShot(false));
+  $('resetCamera').addEventListener('click',resetCameraView);
   $('curlLeft').addEventListener('click',()=>{game.spin=-1;$('curlLeft').classList.add('active');$('curlRight').classList.remove('active');});
   $('curlRight').addEventListener('click',()=>{game.spin=1;$('curlRight').classList.add('active');$('curlLeft').classList.remove('active');});
   const sweepOn=e=>{e.preventDefault();if(activeStone){sweeping=true;$('sweep').classList.add('active');toast('SWEEPING — REDUCING ICE FRICTION');}};
