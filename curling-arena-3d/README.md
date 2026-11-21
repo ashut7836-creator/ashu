@@ -10,7 +10,7 @@ https://ashut7836-creator.github.io/ashu/curling-arena-3d/
 
 - Three.js 3D arena, ice sheet, house markings, boards, grandstands and lighting.
 - Procedural curling stones with blue and red handles.
-- Rapier 3D rigid-body collisions; fixed-step simulation and custom ice-friction tuning.
+- A lightweight fixed-step curling simulation with stone-to-stone impacts, board limits, curl and adjustable ice friction. This keeps first load small on mobile.
 - Aim angle, shot power, left/right curl, and press-and-hold sweeping.
 - One-end quick match with eight stones per team.
 - Player vs CPU and local two-player modes.
@@ -22,7 +22,6 @@ https://ashut7836-creator.github.io/ashu/curling-arena-3d/
 - [Three.js Game Skills](https://github.com/majidmanzarpour/threejs-game-skills): game-director workflow, gameplay systems, graphics, responsive UI, debugging and release checks.
 - [Full Stack Three.js Skills](https://github.com/full-stack-skills/threejs-skills): Three.js setup, cameras, controls, loaders and animations.
 - [Three.js](https://threejs.org/) for 3D rendering and OrbitControls.
-- [Rapier](https://rapier.rs/) for rigid-body collisions.
 - [Poly Haven — Studio Small 06](https://polyhaven.com/a/studio_small_06) for optional 1K environment lighting. Poly Haven assets are CC0; its HDRI is loaded directly by the page. Arena lights provide a fallback if it cannot load.
 
 ## Controls
@@ -33,6 +32,10 @@ https://ashut7836-creator.github.io/ashu/curling-arena-3d/
 - Hold **SWEEP** while the stone moves to reduce the simulated ice friction.
 - Drag the 3D scene to orbit the camera and pinch to zoom.
 - The game saves locally in browser storage; the save is not synced across devices.
+
+## Performance note
+
+The first playable build intentionally avoids loading a multi-megabyte WebAssembly physics package before the 3D scene appears. Curling-specific stone movement and collisions are simulated directly in JavaScript. Rapier can be reconsidered for later physics-heavy features if profiling shows it is worth the extra download.
 
 ## Development status
 
