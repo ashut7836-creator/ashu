@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#071321">
+<meta name="description" content="Play Curling Arena, a free 2D curling game. Challenge the CPU or play head-to-head on one device.">
+<link rel="canonical" href="https://ashut7836-creator.github.io/ashu/curling-arena/">
+<title>CURLING ARENA — Ice Challenge</title>
+<style>
+:root{color-scheme:dark;--bg:#061321;--panel:#10243a;--line:rgba(183,220,246,.15);--muted:#9bb3c8;--blue:#35bfff;--red:#ff687f;--gold:#ffd477}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;padding:max(14px,env(safe-area-inset-top)) 12px max(20px,env(safe-area-inset-bottom));background:radial-gradient(ellipse at 50% -10%,#183c5b 0%,transparent 54%),linear-gradient(180deg,#081a2b,#050d17);color:#f3f9ff;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+.app{width:min(100%,760px);margin:auto}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:4px 2px 14px}
+.brand{display:flex;align-items:center;gap:11px}
+.logo{width:43px;height:43px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(145deg,#7be5ff,#167ebd);font-size:23px;box-shadow:0 8px 22px #1596d544}
+h1{margin:0;font-size:clamp(17px,4vw,24px);letter-spacing:.12em}
+.tagline{margin:4px 0 0;color:var(--muted);font-size:10px;letter-spacing:.2em;font-weight:800}
+.pill{border:1px solid var(--line);border-radius:99px;padding:8px 11px;color:#c5d9e9;font-size:10px;letter-spacing:.1em;font-weight:900;white-space:nowrap}
+.scorebar{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;margin-bottom:10px}
+.team{padding:10px 13px;border:1px solid var(--line);border-radius:15px;background:#ffffff08}
+.team.red{text-align:right}.teamname{font-size:10px;color:var(--muted);letter-spacing:.13em;font-weight:900}.score{font-size:28px;font-weight:950;margin-top:2px;line-height:1.1;font-variant-numeric:tabular-nums}
+.blue .score{color:var(--blue)}.red .score{color:var(--red)}
+.end{display:grid;place-content:center;text-align:center;min-width:58px}.end b{font-size:16px;color:var(--gold)}.end span{font-size:9px;color:var(--muted);letter-spacing:.14em;font-weight:900}
+.status{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;margin-bottom:10px;border:1px solid var(--line);border-radius:13px;background:#10243add}
+.statusmain{font-size:12px;font-weight:850}.statussub{margin-top:3px;font-size:10px;color:var(--muted)}.count{font-size:10px;color:var(--muted);white-space:nowrap;font-weight:900}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;box-shadow:0 0 12px currentColor}.dot.blue{background:var(--blue);color:var(--blue)}.dot.red{background:var(--red);color:var(--red)}
+.rinkwrap{padding:7px;border-radius:21px;border:1px solid #a8ddff35;background:linear-gradient(145deg,#5faedb38,#183c5a55);box-shadow:0 18px 48px #0006}
+canvas{display:block;width:100%;height:auto;aspect-ratio:600/820;border-radius:14px;background:#cceefa;touch-action:pan-y}
+.caption{display:flex;justify-content:space-between;gap:8px;margin:9px 4px 2px;color:#a9c4d7;font-size:9px;font-weight:900;letter-spacing:.1em}
+.controls{margin-top:12px;padding:14px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(145deg,#122d48,#0b1c2d)}
+.controlhead{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:13px}
+h2{font-size:12px;letter-spacing:.15em;margin:0}
+.switch{display:flex;gap:3px;padding:3px;border:1px solid var(--line);border-radius:99px;background:#061522}
+button{font:inherit;cursor:pointer}
+.mode{border:0;border-radius:99px;padding:7px 10px;background:transparent;color:#9db7ca;font-size:10px;font-weight:900}
+.mode.active{color:#061522;background:#b5eaff}
+.sliders{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.sliderhead{display:flex;justify-content:space-between;gap:6px;margin-bottom:7px;color:#bfd2e1;font-size:10px;font-weight:900;letter-spacing:.1em}
+.sliderhead strong{color:white;font-size:12px;letter-spacing:0}
+input[type=range]{width:100%;accent-color:#55caff}
+.hints{display:flex;justify-content:space-between;color:#7896ad;font-size:9px}
+.actions{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:14px}
+.launch{border:0;border-radius:13px;padding:14px;color:#052033;background:linear-gradient(100deg,#a2edff,#45baf1);font-size:12px;font-weight:1000;letter-spacing:.12em;box-shadow:0 8px 20px #23a8e133}
+.launch:disabled{opacity:.42;cursor:not-allowed}.secondary{border:1px solid var(--line);border-radius:13px;background:#16334f;color:#e1f1fc;padding:0 14px;font-size:11px;font-weight:900}
+.bottom{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:11px}.hint{font-size:10px;line-height:1.4;color:#91aabd}.sound{display:flex;gap:6px;align-items:center;color:#b4c9d9;font-size:10px;font-weight:850;white-space:nowrap}.sound input{accent-color:#55caff}
+.toast{min-height:18px;margin:9px 2px 0;text-align:center;color:#ffdf9a;font-size:11px;font-weight:850}
+footer{text-align:center;margin-top:13px;color:#6e8ba2;font-size:9px;letter-spacing:.12em}
+@media(max-width:420px){body{padding-left:8px;padding-right:8px}.pill{font-size:9px;padding:7px 9px}.controls{padding:12px}.mode{padding:7px 8px;font-size:9px}.secondary{padding:0 10px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header><div class="brand"><div class="logo">❄</div><div><h1>CURLING ARENA</h1><p class="tagline">SLIDE · STRATEGY · SCORE</p></div></div><div class="pill">2D ICE CHALLENGE</div></header>
+<section class="scorebar" aria-label="Scoreboard">
+<div class="team blue"><div class="teamname" id="blueName">BLUE · YOU</div><div class="score" id="blueScore">0</div></div>
+<div class="end"><b id="endNo">01</b><span>END</span></div>
+<div class="team red"><div class="teamname" id="redName">RED · CPU</div><div class="score" id="redScore">0</div></div>
+</section>
+<section class="status"><div><div class="statusmain" id="statusMain"><span class="dot blue"></span>Blue team's turn</div><div class="statussub" id="statusSub">Set your angle and power, then release.</div></div><div class="count" id="count">0 / 16 STONES</div></section>
+<main class="rinkwrap"><canvas id="rink" width="600" height="820" aria-label="Curling game rink"></canvas><div class="caption"><span>HOUSE TARGET</span><span>PLAYING SURFACE</span><span>RELEASE LINE</span></div></main>
+<section class="controls">
+<div class="controlhead"><h2>SHOT CONTROLS</h2><div class="switch"><button class="mode active" id="cpuMode">VS CPU</button><button class="mode" id="localMode">2 PLAYERS</button></div></div>
+<div class="sliders">
+<div><div class="sliderhead"><label for="angle">AIM ANGLE</label><strong id="angleVal">0°</strong></div><input id="angle" type="range" min="-35" max="35" value="0"><div class="hints"><span>◀ LEFT</span><span>RIGHT ▶</span></div></div>
+<div><div class="sliderhead"><label for="power">SHOT POWER</label><strong id="powerVal">86%</strong></div><input id="power" type="range" min="35" max="100" value="86"><div class="hints"><span>SOFT</span><span>HARD</span></div></div>
+</div>
+<div class="actions"><button class="launch" id="launch">RELEASE STONE ↗</button><button class="secondary" id="reset">RESET</button></div>
+<div class="bottom"><div class="hint" id="hint">Aim for the centre of the house. Get closer than the red team!</div><label class="sound"><input id="sound" type="checkbox" checked> SOUND</label></div>
+</section>
+<div class="toast" id="toast" aria-live="polite"></div>
+<footer>PLAY FREE · NO SIGN-UP · NO BUILDER WATERMARK</footer>
+</div>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id),c=$('rink'),ctx=c.getContext('2d'),TAU=Math.PI*2;
+const rink={left:82,right:518,top:54,bottom:778},house={x:300,y:190,r:126},start={x:300,y:716},R=18;
+const colors={blue:'#35bfff',red:'#ff687f'};
+const g={mode:'cpu',current:'blue',end:1,shots:0,bShots:0,rShots:0,blue:0,red:0,stones:[],moving:false,ready:true,done:false,ai:false,sound:true,last:''};
+let particles=[],last=0,stopTimer=0,aiTimer=0;
+function beep(f,d=.06,type='sine',v=.025){if(!g.sound)return;try{const A=window.AudioContext||window.webkitAudioContext;if(!A)return;const a=beep.a||(beep.a=new A());if(a.state==='suspended')a.resume();const o=a.createOscillator(),n=a.createGain();o.type=type;o.frequency.value=f;n.gain.setValueAtTime(v,a.currentTime);n.gain.exponentialRampToValueAtTime(.001,a.currentTime+d);o.connect(n);n.connect(a.destination);o.start();o.stop(a.currentTime+d)}catch(e){}}
+function toast(t){$('toast').textContent=t}
+function human(){return g.mode==='local'||g.current==='blue'}
+function update(){
+$('blueScore').textContent=g.blue;$('redScore').textContent=g.red;$('endNo').textContent=String(g.end).padStart(2,'0');$('count').textContent=g.shots+' / 16 STONES';
+$('blueName').textContent=g.mode==='cpu'?'BLUE · YOU':'BLUE · PLAYER 1';$('redName').textContent=g.mode==='cpu'?'RED · CPU':'RED · PLAYER 2';
+const dot='<span class="dot '+g.current+'"></span>';
+if(g.done){$('statusMain').textContent='END COMPLETE';$('statusSub').textContent=g.last;$('launch').textContent='NEXT END →';$('launch').disabled=false}
+else if(g.moving){$('statusMain').textContent='Stones are sliding…';$('statusSub').textContent='Watch the stones settle on the ice.';$('launch').textContent='STONE IN PLAY';$('launch').disabled=true}
+else if(g.ai){$('statusMain').innerHTML=dot+'Red team is thinking';$('statusSub').textContent='The CPU is lining up its shot.';$('launch').textContent='CPU TURN';$('launch').disabled=true}
+else{$('statusMain').innerHTML=dot+(g.current==='blue'?'Blue':'Red')+' team turn';$('statusSub').textContent=g.mode==='local'&&g.current==='red'?'Pass the device to Player 2.':'Set your angle and power, then release.';$('launch').textContent='RELEASE '+g.current.toUpperCase()+' STONE ↗';$('launch').disabled=!g.ready}
+$('angle').disabled=$('power').disabled=!g.ready||g.done||!human();
+$('cpuMode').classList.toggle('active',g.mode==='cpu');$('localMode').classList.toggle('active',g.mode==='local');
+$('hint').textContent=g.mode==='cpu'?'Outplay the CPU. The closest stone to the button wins the end.':'Take turns on one device. Blue plays first in every end.';
+}
+function clearTimers(){clearTimeout(stopTimer);clearTimeout(aiTimer)}
+function fresh(show){clearTimers();g.current='blue';g.end=1;g.shots=0;g.bShots=0;g.rShots=0;g.blue=0;g.red=0;g.stones=[];g.moving=false;g.ready=true;g.done=false;g.ai=false;g.last='';particles=[];$('angle').value=0;$('power').value=86;$('angleVal').textContent='0°';$('powerVal').textContent='86%';update();if(show)toast('Fresh sheet of ice. Good luck!')}
+function nextEnd(){clearTimers();g.end++;g.shots=0;g.bShots=0;g.rShots=0;g.stones=[];g.moving=false;g.ready=true;g.done=false;g.ai=false;g.last='';g.current='blue';particles=[];$('angle').value=0;$('power').value=86;$('angleVal').textContent='0°';$('powerVal').textContent='86%';update();toast('End '+g.end+' begins. Blue leads off!')}
+function dist(x,y,a,b){return Math.hypot(x-a,y-b)}
+function burst(x,y,team,n){for(let i=0;i<n;i++){const a=Math.random()*TAU,s=25+Math.random()*115;particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:.35+Math.random()*.3,max:.65,team})}}
+function shoot(team,deg,power){
+if(g.moving||g.done||!g.ready)return;
+const a=deg*Math.PI/180,speed=350+power/100*720;
+g.stones.push({x:start.x,y:start.y,vx:Math.sin(a)*speed,vy:-Math.cos(a)*speed,team,r:R,no:team==='blue'?++g.bShots:++g.rShots});
+g.shots++;g.current=team==='blue'?'red':'blue';g.ready=false;g.moving=true;g.ai=false;burst(start.x,start.y,team,9);beep(250+power*3,.13,'triangle',.04);update();
+}
+function aiShoot(){
+if(g.mode!=='cpu'||g.current!=='red'||g.done||g.moving)return;
+let tx=house.x+(Math.random()*30-15),p=83+Math.random()*12;
+const blues=g.stones.filter(s=>s.team==='blue');
+if(blues.length){const near=blues.reduce((a,b)=>dist(a.x,a.y,house.x,house.y)<dist(b.x,b.y,house.x,house.y)?a:b);if(dist(near.x,near.y,house.x,house.y)<150){tx=near.x+(Math.random()<.5?-30:30);p=88+Math.random()*9}}
+const angle=Math.atan2(tx-start.x,start.y-house.y)*180/Math.PI;shoot('red',Math.max(-33,Math.min(33,angle)),p)
+}
+function finish(){
+const b=g.stones.filter(s=>s.team==='blue').map(s=>dist(s.x,s.y,house.x,house.y)).sort((a,b)=>a-b),r=g.stones.filter(s=>s.team==='red').map(s=>dist(s.x,s.y,house.x,house.y)).sort((a,b)=>a-b);
+const bd=b[0]??Infinity,rd=r[0]??Infinity,w=bd<rd?'blue':rd<bd?'red':'tie';let pts=0;
+if(w!=='tie'){const arr=w==='blue'?b:r,other=w==='blue'?rd:bd;pts=arr.filter(d=>d<house.r&&d<other).length;if(w==='blue')g.blue+=pts;else g.red+=pts}
+g.done=true;g.ready=false;g.last=pts?w.toUpperCase()+' scores '+pts+' point'+(pts===1?'':'s')+' this end.':'No stones in the house — no points awarded.';
+burst(house.x,house.y,w==='tie'?'blue':w,25);beep(w==='tie'?300:660,.22);update();toast(g.last)
+}
+function afterShot(){if(g.moving||g.done)return;if(g.shots>=16){finish();return}g.ready=true;update();if(g.mode==='cpu'&&g.current==='red'){g.ai=true;update();aiTimer=setTimeout(aiShoot,850)}}
+function physics(dt){
+const drag=Math.exp(-1.45*dt);
+for(const s of g.stones){s.x+=s.vx*dt;s.y+=s.vy*dt;s.vx*=drag;s.vy*=drag;
+if(s.x<rink.left+s.r){s.x=rink.left+s.r;s.vx=Math.abs(s.vx)*.68}
+if(s.x>rink.right-s.r){s.x=rink.right-s.r;s.vx=-Math.abs(s.vx)*.68}
+if(s.y<rink.top+s.r){s.y=rink.top+s.r;s.vy=Math.abs(s.vy)*.62}
+if(s.y>rink.bottom-s.r){s.y=rink.bottom-s.r;s.vy=-Math.abs(s.vy)*.62}
+if(Math.hypot(s.vx,s.vy)<7){s.vx=0;s.vy=0}}
+for(let i=0;i<g.stones.length;i++)for(let j=i+1;j<g.stones.length;j++){const a=g.stones[i],b=g.stones[j];let dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy),min=a.r+b.r;if(d<min){if(d<.001){dx=.01;d=.01}const nx=dx/d,ny=dy/d,over=min-d;a.x-=nx*over*.5;a.y-=ny*over*.5;b.x+=nx*over*.5;b.y+=ny*over*.5;const rel=(b.vx-a.vx)*nx+(b.vy-a.vy)*ny;if(rel<0){const impulse=-(1+.86)*rel*.5;a.vx-=impulse*nx;a.vy-=impulse*ny;b.vx+=impulse*nx;b.vy+=impulse*ny;burst((a.x+b.x)/2,(a.y+b.y)/2,a.team,4);beep(320,.05,'triangle',.018)}}}
+particles=particles.filter(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=Math.exp(-3*dt);p.vy*=Math.exp(-3*dt);p.life-=dt;return p.life>0});
+if(!g.stones.some(s=>Math.hypot(s.vx,s.vy)>7)){g.moving=false;g.stones.forEach(s=>{s.vx=0;s.vy=0});stopTimer=setTimeout(afterShot,360)}
+}
+function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
+function drawRink(){
+const grad=ctx.createLinearGradient(0,0,600,820);grad.addColorStop(0,'#e9fbff');grad.addColorStop(.52,'#cceefa');grad.addColorStop(1,'#b6e1f0');ctx.fillStyle=grad;ctx.fillRect(0,0,600,820);
+for(let i=0;i<60;i++){let x=(i*83+17)%600;ctx.strokeStyle=i%2?'#ffffff24':'#3d8eaf0e';ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x+((i%5)-2)*5,820);ctx.stroke()}
+ctx.fillStyle='#2f84a61c';ctx.fillRect(18,20,564,780);ctx.strokeStyle='#1a67905f';ctx.lineWidth=4;rr(48,28,504,764,22);ctx.stroke();
+ctx.strokeStyle='#ffffffcc';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(rink.left,48);ctx.lineTo(rink.left,778);ctx.moveTo(rink.right,48);ctx.lineTo(rink.right,778);ctx.stroke();
+ctx.strokeStyle='#d64a5d88';ctx.beginPath();ctx.moveTo(90,house.y);ctx.lineTo(510,house.y);ctx.stroke();ctx.strokeStyle='#1c82b766';ctx.beginPath();ctx.moveTo(90,480);ctx.lineTo(510,480);ctx.stroke();
+ctx.save();ctx.shadowColor='#0e598020';ctx.shadowBlur=14;ctx.fillStyle='#ffffffdc';ctx.beginPath();ctx.arc(house.x,house.y,house.r,0,TAU);ctx.fill();ctx.restore();
+ctx.lineWidth=3;ctx.strokeStyle='#1f82bab8';ctx.beginPath();ctx.arc(house.x,house.y,house.r,0,TAU);ctx.stroke();
+ctx.fillStyle='#f1596b30';ctx.beginPath();ctx.arc(house.x,house.y,82,0,TAU);ctx.fill();ctx.strokeStyle='#ed5166cc';ctx.beginPath();ctx.arc(house.x,house.y,82,0,TAU);ctx.stroke();
+ctx.fillStyle='#2fa8db38';ctx.beginPath();ctx.arc(house.x,house.y,43,0,TAU);ctx.fill();ctx.strokeStyle='#238fc3d9';ctx.beginPath();ctx.arc(house.x,house.y,43,0,TAU);ctx.stroke();
+ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(house.x,house.y,10,0,TAU);ctx.fill();ctx.fillStyle='#287ba6';ctx.beginPath();ctx.arc(house.x,house.y,4,0,TAU);ctx.fill();
+ctx.fillStyle='#1d6383aa';ctx.font='900 11px system-ui';ctx.textAlign='center';ctx.fillText('THE HOUSE',300,43);ctx.fillStyle='#1d638380';ctx.font='800 9px system-ui';ctx.fillText('BUTTON',300,house.y+house.r+19);
+ctx.strokeStyle='#22789e4d';ctx.setLineDash([5,8]);ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(100,start.y+24);ctx.lineTo(500,start.y+24);ctx.stroke();ctx.setLineDash([]);ctx.strokeStyle='#1f83b148';ctx.beginPath();ctx.arc(start.x,start.y,35,0,TAU);ctx.stroke();ctx.fillStyle='#196f9585';ctx.font='900 10px system-ui';ctx.fillText('RELEASE LINE',300,786);
+if(g.ready&&!g.done&&human()){const a=+$('angle').value*Math.PI/180,ex=start.x+Math.sin(a)*142,ey=start.y-Math.cos(a)*142;ctx.save();ctx.strokeStyle=g.current==='blue'?'#0586d2d1':'#d53753d1';ctx.fillStyle=ctx.strokeStyle;ctx.lineWidth=4;ctx.setLineDash([8,7]);ctx.beginPath();ctx.moveTo(start.x,start.y);ctx.lineTo(ex,ey);ctx.stroke();ctx.setLineDash([]);ctx.beginPath();ctx.arc(ex,ey,5,0,TAU);ctx.fill();ctx.restore()}
+}
+function drawStone(s){
+ctx.save();ctx.translate(s.x,s.y);ctx.fillStyle='#1a425e33';ctx.beginPath();ctx.ellipse(3,7,19,14,0,0,TAU);ctx.fill();
+const grad=ctx.createRadialGradient(-7,-9,2,0,0,22);if(s.team==='blue'){grad.addColorStop(0,'#b9f1ff');grad.addColorStop(.3,'#41c5fa');grad.addColorStop(1,'#0874b4')}else{grad.addColorStop(0,'#ffd4da');grad.addColorStop(.3,'#ff7187');grad.addColorStop(1,'#bd274d')}
+ctx.fillStyle=grad;ctx.beginPath();ctx.arc(0,0,s.r,0,TAU);ctx.fill();ctx.strokeStyle='#ffffffeb';ctx.lineWidth=2;ctx.stroke();ctx.fillStyle='#ffffffeb';ctx.beginPath();ctx.arc(-6,-7,4,0,TAU);ctx.fill();ctx.fillStyle='#092337';ctx.font='900 11px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(s.no,1,2);ctx.restore()
+}
+function render(){
+ctx.clearRect(0,0,600,820);drawRink();g.stones.forEach(drawStone);
+particles.forEach(p=>{ctx.globalAlpha=Math.max(0,p.life/p.max)*.8;ctx.fillStyle=p.team==='red'?colors.red:colors.blue;ctx.beginPath();ctx.arc(p.x,p.y,2.5,0,TAU);ctx.fill()});ctx.globalAlpha=1;
+if(!g.stones.length&&g.ready){ctx.fillStyle='#1a698c88';ctx.font='800 12px system-ui';ctx.textAlign='center';ctx.fillText('AIM · SET POWER · RELEASE',300,560)}
+}
+function frame(t){const dt=last?Math.min((t-last)/1000,.035):.016;last=t;if(g.moving)physics(dt);render();requestAnimationFrame(frame)}
+$('angle').addEventListener('input',()=>{$('angleVal').textContent=$('angle').value+'°'});
+$('power').addEventListener('input',()=>{$('powerVal').textContent=$('power').value+'%'});
+$('launch').addEventListener('click',()=>{if(g.done){nextEnd();return}if(!g.ready||g.moving||!human())return;shoot(g.current,+$('angle').value,+$('power').value)});
+$('cpuMode').addEventListener('click',()=>{if(g.mode!=='cpu'){g.mode='cpu';fresh(false);toast('VS CPU mode selected')}});
+$('localMode').addEventListener('click',()=>{if(g.mode!=='local'){g.mode='local';fresh(false);toast('2-player pass-and-play selected')}});
+$('reset').addEventListener('click',()=>fresh(true));
+$('sound').addEventListener('change',e=>{g.sound=e.target.checked;if(g.sound)beep(520,.06)});
+update();requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
