@@ -265,9 +265,9 @@ function makeStoneMesh(team){
   return group;
 }
 function addStone(team,x=0,z=RELEASE_Z,vel={x:0,y:0,z:0}){
-  const mesh=makeStoneMesh(team);mesh.position.set(x,.13,z);scene.add(mesh);
+  const mesh=makeStoneMesh(team);mesh.position.set(x,.11,z);scene.add(mesh);
   const body={
-    position:new THREE.Vector3(x,.13,z),
+    position:new THREE.Vector3(x,.11,z),
     velocity:new THREE.Vector3(vel.x||0,0,vel.z||0),
     yaw:0
   };
@@ -313,6 +313,11 @@ function updatePhysics(dt){
       if(next<.015)v.set(0,0,0);
     }else if(speed>0){v.set(0,0,0);}
   }
+  const endLimit=L/2-STONE_R;
+  for(const s of stones){
+    if(s.body.position.z < -endLimit){s.body.position.z=-endLimit;s.body.velocity.set(0,0,0);}
+    if(s.body.position.z > endLimit){s.body.position.z=endLimit;s.body.velocity.set(0,0,0);}
+  }
   const diameter=STONE_R*2;
   for(let i=0;i<stones.length;i++){
     for(let j=i+1;j<stones.length;j++){
@@ -337,10 +342,10 @@ function updatePhysics(dt){
     s.mesh.rotation.y=s.body.yaw;
   }
   if(activeStone){
-    const v=activeStone.body.velocity,speed=Math.hypot(v.x,v.z);
-    if(speed<.12){lastSettle+=dt;}else lastSettle=0;
+    const anyMoving=stones.some(s=>Math.hypot(s.body.velocity.x,s.body.velocity.z)>.12);
+    if(anyMoving){lastSettle=0;}else{lastSettle+=dt;}
     if(lastSettle>.55){
-      activeStone.body.velocity.set(0,0,0);
+      stones.forEach(s=>{if(Math.hypot(s.body.velocity.x,s.body.velocity.z)<.12)s.body.velocity.set(0,0,0);});
       activeStone=null;lastSettle=0;onShotSettled();
     }
   }
