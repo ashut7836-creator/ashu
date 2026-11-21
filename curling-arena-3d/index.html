@@ -204,7 +204,7 @@ function buildArena(){
   scene=new THREE.Scene();scene.background=new THREE.Color(0x061321);scene.fog=new THREE.Fog(0x081b2a,65,155);
   camera=new THREE.PerspectiveCamera(42,1,.1,240);camera.position.set(0,30,53);
   renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance'});
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.25));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.25));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFShadowMap;
   renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;
   orbit=new OrbitControls(camera,renderer.domElement);orbit.enableDamping=true;orbit.dampingFactor=.06;orbit.target.set(0,0,5);orbit.minDistance=13;orbit.maxDistance=70;orbit.maxPolarAngle=Math.PI*.48;orbit.minPolarAngle=.12;
   scene.add(new THREE.HemisphereLight(0xcef1ff,0x1c3148,2.1));
@@ -451,6 +451,8 @@ function start(){
   try{
     $('sceneState').textContent='BUILDING 3D ARENA…';
     buildArena();resize();initButtons();updateSliderLabels();
+    // Do not wait for the optional Poly Haven HDRI; the arena is already playable.
+    $('sceneState').textContent='ARENA READY';
     const saved=getSaved();
     if(saved && !saved.complete && (saved.shots>0||(saved.stones||[]).length>0)){
       $('resumeText').textContent='A match with '+saved.shots+' of 16 stones delivered was found. Resume it or start a fresh match.';
