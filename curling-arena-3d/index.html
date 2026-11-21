@@ -96,7 +96,7 @@ footer a{color:#8ecdeb;text-decoration:none}
   </aside>
 </div>
 <div class="toast" id="toast" aria-live="polite"></div>
-<footer>3D GAME STUDY BUILD · PHYSICS: RAPIER · <a href="https://polyhaven.com/a/studio_small_06" target="_blank" rel="noopener">ENVIRONMENT LIGHTING: POLY HAVEN (CC0)</a> · NO BUILDER WATERMARK</footer>
+<footer>3D GAME STUDY BUILD · CURLING-SPECIFIC PHYSICS · <a href="https://polyhaven.com/a/studio_small_06" target="_blank" rel="noopener">ENVIRONMENT LIGHTING: POLY HAVEN (CC0)</a> · NO BUILDER WATERMARK</footer>
 </div>
 <div class="modal" id="resumeModal">
   <div class="modalCard">
@@ -116,7 +116,6 @@ footer a{color:#8ecdeb;text-decoration:none}
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
-import RAPIER from 'https://cdn.jsdelivr.net/npm/@dimforge/rapier3d-compat@0.21.0/rapier.es.js';
 
 const $ = id => document.getElementById(id);
 const canvas = $('view');
@@ -205,11 +204,11 @@ function buildArena(){
   scene=new THREE.Scene();scene.background=new THREE.Color(0x061321);scene.fog=new THREE.Fog(0x081b2a,65,155);
   camera=new THREE.PerspectiveCamera(42,1,.1,240);camera.position.set(0,30,53);
   renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance'});
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.6));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.25));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
   renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;
   orbit=new OrbitControls(camera,renderer.domElement);orbit.enableDamping=true;orbit.dampingFactor=.06;orbit.target.set(0,0,5);orbit.minDistance=13;orbit.maxDistance=70;orbit.maxPolarAngle=Math.PI*.48;orbit.minPolarAngle=.12;
   scene.add(new THREE.HemisphereLight(0xcef1ff,0x1c3148,2.1));
-  const key=new THREE.DirectionalLight(0xe8f8ff,3.6);key.position.set(-13,30,12);key.castShadow=true;key.shadow.mapSize.set(1024,1024);key.shadow.camera.left=-30;key.shadow.camera.right=30;key.shadow.camera.top=50;key.shadow.camera.bottom=-50;scene.add(key);
+  const key=new THREE.DirectionalLight(0xe8f8ff,3.6);key.position.set(-13,30,12);key.castShadow=true;key.shadow.mapSize.set(768,768);key.shadow.camera.left=-30;key.shadow.camera.right=30;key.shadow.camera.top=50;key.shadow.camera.bottom=-50;scene.add(key);
   const fill=new THREE.DirectionalLight(0x55bfff,1.25);fill.position.set(15,18,-24);scene.add(fill);
   const floorMat=new THREE.MeshStandardMaterial({color:0x091827,roughness:.92});
   const ground=new THREE.Mesh(new THREE.PlaneGeometry(220,220),floorMat);ground.rotation.x=-Math.PI/2;ground.position.y=-.68;ground.receiveShadow=true;scene.add(ground);
@@ -219,7 +218,7 @@ function buildArena(){
   const railMat=new THREE.MeshStandardMaterial({color:0x244d69,metalness:.65,roughness:.32});
   [-1,1].forEach(s=>{box(scene,.16,.62,L+.4,boardMat,s*(W/2+.10),.2,0);box(scene,.34,.16,L+.6,railMat,s*(W/2+.1),.57,0);});
   [-1,1].forEach(s=>{box(scene,W+.5,.62,.16,boardMat,0,.2,s*(L/2+.1));box(scene,W+.8,.16,.34,railMat,0,.57,s*(L/2+.1));});
-  const glass=new THREE.MeshPhysicalMaterial({color:0x9ddfff,transparent:true,opacity:.09,roughness:.08,metalness:.2,side:THREE.DoubleSide});
+  const glass=new THREE.MeshPhysicalMaterial({color:0x9ddfff,transparent:true,opacity:.06,roughness:.08,metalness:.2,side:THREE.DoubleSide});
   [-1,1].forEach(s=>{const m=new THREE.Mesh(new THREE.BoxGeometry(.08,2.0,L),glass);m.position.set(s*(W/2+.26),1.45,0);scene.add(m);});
   const midMat=new THREE.MeshBasicMaterial({color:0xd5f6ff});
   box(scene,.025,.012,L-.8,midMat,0,.01,0);
@@ -248,9 +247,11 @@ function buildArena(){
   buildPhysics();
 }
 function buildPhysics(){
-  world=new RAPIER.World({x:0,y:0,z:0});world.timestep=FIXED;
-  world.createCollider(RAPIER.ColliderDesc.cuboid(W/2,.16,L/2).setTranslation(0,-.16,0).setFriction(.5));
+  // Lightweight curling-specific simulation: it starts immediately and keeps
+  // the first mobile build independent of a large WebAssembly download.
+  world={removeRigidBody(){}};
 }
+
 function makeStoneMesh(team){
   const group=new THREE.Group();
   const granite=new THREE.MeshPhysicalMaterial({color:0x303844,roughness:.28,metalness:.24,clearcoat:.62,clearcoatRoughness:.22});
@@ -265,12 +266,15 @@ function makeStoneMesh(team){
 }
 function addStone(team,x=0,z=RELEASE_Z,vel={x:0,y:0,z:0}){
   const mesh=makeStoneMesh(team);mesh.position.set(x,.13,z);scene.add(mesh);
-  const body=world.createRigidBody(RAPIER.RigidBodyDesc.dynamic().setTranslation(x,.13,z).setGravityScale(0).setLinearDamping(0).setAngularDamping(1.2).setCcdEnabled(true).enabledRotations(false,true,false));
-  const collider=world.createCollider(RAPIER.ColliderDesc.cylinder(STONE_HALF_H,STONE_R*.94).setFriction(.6).setRestitution(.18).setMass(19),body);
-  if(vel && (Math.abs(vel.x)+Math.abs(vel.z)>.001))body.setLinvel({x:vel.x,y:0,z:vel.z},true);
-  const item={team,mesh,body,collider,spin:0,settle:0};
+  const body={
+    position:new THREE.Vector3(x,.13,z),
+    velocity:new THREE.Vector3(vel.x||0,0,vel.z||0),
+    yaw:0
+  };
+  const item={team,mesh,body,spin:0,settle:0};
   stones.push(item);return item;
 }
+
 function launchShot(isAI=false){
   if(activeStone||game.complete||(!isAI&&game.mode==='cpu'&&game.team===RED))return;
   const angle=(isAI?(Math.random()*10-5):Number($('angle').value))*Math.PI/180;
@@ -278,8 +282,7 @@ function launchShot(isAI=false){
   const speed=power*.175;
   const stone=addStone(game.team,0,RELEASE_Z);
   stone.spin=isAI?(Math.random()>.5?1:-1):game.spin;
-  stone.body.setLinvel({x:Math.sin(angle)*speed,y:0,z:-Math.cos(angle)*speed},true);
-  stone.body.setAngvel({x:0,y:stone.spin*1.1,z:0},true);
+  stone.body.velocity.set(Math.sin(angle)*speed,0,-Math.cos(angle)*speed);
   activeStone=stone;lastSettle=0;sweeping=false;
   $('sweep').classList.remove('active');
   $('launch').disabled=true;
@@ -288,29 +291,61 @@ function launchShot(isAI=false){
   updateHud();saveGame();
 }
 function updatePhysics(dt){
+  // Fixed-step, top-down rigid-disc simulation for curling stones:
+  // ice drag, curl, side boards and equal-mass stone-to-stone impacts.
   for(const s of stones){
-    const v=s.body.linvel();const speed=Math.hypot(v.x,v.z);
+    const v=s.body.velocity;
+    const speed=Math.hypot(v.x,v.z);
     if(speed>.015){
       const sweep=(s===activeStone&&sweeping);
       const decel=sweep?1.55:1.85;
       const next=Math.max(0,speed-decel*dt);
-      let vx=v.x/speed*next, vz=v.z/speed*next;
-      if(s.spin!==0){vx+=s.spin*speed*.004*dt;}
-      s.body.setLinvel({x:vx,y:0,z:vz},true);
-    }else if(speed>0){
-      s.body.setLinvel({x:0,y:0,z:0},true);
+      v.multiplyScalar(next/speed);
+      if(s.spin!==0){
+        v.x+=s.spin*speed*.004*dt;
+        s.body.yaw+=s.spin*speed*.22*dt;
+      }
+      s.body.position.x+=v.x*dt;
+      s.body.position.z+=v.z*dt;
+      const limit=W/2-STONE_R;
+      if(s.body.position.x < -limit){s.body.position.x=-limit;v.x=Math.abs(v.x)*.22;}
+      if(s.body.position.x > limit){s.body.position.x=limit;v.x=-Math.abs(v.x)*.22;}
+      if(next<.015)v.set(0,0,0);
+    }else if(speed>0){v.set(0,0,0);}
+  }
+  const diameter=STONE_R*2;
+  for(let i=0;i<stones.length;i++){
+    for(let j=i+1;j<stones.length;j++){
+      const a=stones[i].body,b=stones[j].body;
+      let dx=b.position.x-a.position.x,dz=b.position.z-a.position.z;
+      const dist=Math.hypot(dx,dz);
+      if(dist>0&&dist<diameter){
+        const nx=dx/dist,nz=dz/dist,overlap=diameter-dist;
+        a.position.x-=nx*overlap*.5;a.position.z-=nz*overlap*.5;
+        b.position.x+=nx*overlap*.5;b.position.z+=nz*overlap*.5;
+        const closing=(b.velocity.x-a.velocity.x)*nx+(b.velocity.z-a.velocity.z)*nz;
+        if(closing<0){
+          const impulse=-(1+.18)*closing*.5;
+          a.velocity.x-=nx*impulse;a.velocity.z-=nz*impulse;
+          b.velocity.x+=nx*impulse;b.velocity.z+=nz*impulse;
+        }
+      }
     }
   }
-  world.step();
   for(const s of stones){
-    const p=s.body.translation(),r=s.body.rotation();s.mesh.position.set(p.x,p.y,p.z);s.mesh.quaternion.set(r.x,r.y,r.z,r.w);
+    s.mesh.position.copy(s.body.position);
+    s.mesh.rotation.y=s.body.yaw;
   }
   if(activeStone){
-    const v=activeStone.body.linvel(),speed=Math.hypot(v.x,v.z);
+    const v=activeStone.body.velocity,speed=Math.hypot(v.x,v.z);
     if(speed<.12){lastSettle+=dt;}else lastSettle=0;
-    if(lastSettle>.55){activeStone.body.setLinvel({x:0,y:0,z:0},true);activeStone=null;lastSettle=0;onShotSettled();}
+    if(lastSettle>.55){
+      activeStone.body.velocity.set(0,0,0);
+      activeStone=null;lastSettle=0;onShotSettled();
+    }
   }
 }
+
 function onShotSettled(){
   game.shots++;
   game.team=game.team===BLUE?RED:BLUE;
@@ -357,7 +392,7 @@ function resetMatch(){
 function saveGame(){
   if(!world||!stones)return;
   try{
-    const data={version:1,mode:game.mode,team:game.team,shots:game.shots,blueScore:game.blueScore,redScore:game.redScore,complete:game.complete,spin:game.spin,stones:stones.map(s=>{const p=s.body.translation(),v=s.body.linvel();return {team:s.team,p:[p.x,p.y,p.z],v:[v.x,v.y,v.z],spin:s.spin};})};
+    const data={version:1,mode:game.mode,team:game.team,shots:game.shots,blueScore:game.blueScore,redScore:game.redScore,complete:game.complete,spin:game.spin,stones:stones.map(s=>{const p=s.body.position,v=s.body.velocity;return {team:s.team,p:[p.x,p.y,p.z],v:[v.x,v.y,v.z],spin:s.spin,yaw:s.body.yaw};})};
     localStorage.setItem(SAVE_KEY,JSON.stringify(data));
   }catch(e){console.warn('Could not save match',e);}
 }
@@ -365,7 +400,7 @@ function getSaved(){try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null
 function restoreGame(data){
   stones.forEach(s=>{scene.remove(s.mesh);world.removeRigidBody(s.body);});stones=[];activeStone=null;
   game={mode:data.mode||'cpu',team:data.team||BLUE,shots:data.shots||0,blueScore:data.blueScore||0,redScore:data.redScore||0,complete:!!data.complete,spin:data.spin||-1};
-  (data.stones||[]).forEach(r=>{const s=addStone(r.team,r.p[0],r.p[2],{x:r.v[0],y:r.v[1],z:r.v[2]});s.mesh.position.set(r.p[0],r.p[1],r.p[2]);s.body.setTranslation({x:r.p[0],y:r.p[1],z:r.p[2]},true);s.spin=r.spin||0;if(Math.hypot(r.v[0],r.v[2])>.12)activeStone=s;});
+  (data.stones||[]).forEach(r=>{const s=addStone(r.team,r.p[0],r.p[2],{x:r.v[0],y:r.v[1],z:r.v[2]});s.mesh.position.set(r.p[0],r.p[1],r.p[2]);s.body.position.set(r.p[0],r.p[1],r.p[2]);s.body.velocity.set(r.v[0],r.v[1],r.v[2]);s.body.yaw=r.yaw||0;s.mesh.rotation.y=s.body.yaw;s.spin=r.spin||0;if(Math.hypot(r.v[0],r.v[2])>.12)activeStone=s;});
   if(game.complete){$('resultModal').classList.add('show');$('resultTitle').textContent='MATCH SAVED';$('resultText').textContent='This end is complete. Start another end to play again.';}
   updateHud();setStatus(activeStone?'Resuming stone in motion':(game.team===BLUE?'Blue team — your turn':'Red team — next turn'),'Your saved match has been restored on this device.',game.team);
   if(!activeStone&&game.mode==='cpu'&&game.team===RED&&!game.complete)aiTimer=1.0;
@@ -407,10 +442,9 @@ function initButtons(){
   window.addEventListener('resize',resize);window.addEventListener('pagehide',saveGame);
   document.addEventListener('visibilitychange',()=>{if(document.hidden)saveGame();});
 }
-async function start(){
+function start(){
   try{
     $('sceneState').textContent='BUILDING 3D ARENA…';
-    await RAPIER.init();
     buildArena();resize();initButtons();updateSliderLabels();
     const saved=getSaved();
     if(saved && !saved.complete && (saved.shots>0||(saved.stones||[]).length>0)){
@@ -419,13 +453,13 @@ async function start(){
     }else if(saved&&saved.complete){
       game={mode:saved.mode||'cpu',team:saved.team||BLUE,shots:16,blueScore:saved.blueScore||0,redScore:saved.redScore||0,complete:true,spin:-1};
       (saved.stones||[]).forEach(r=>addStone(r.team,r.p[0],r.p[2],{x:0,y:0,z:0}));
-      updateHud();setStatus('End complete','Start a new match to play another end.',BLUE);$('resultModal').classList.add('show');$('resultTitle').textContent='PREVIOUS END COMPLETE';$('resultText').textContent='Blue '+game.blueScore+' — Red '+game.redScore+'.';
+      updateHud();setStatus('End complete','Start a new match to play again.',BLUE);$('resultModal').classList.add('show');$('resultTitle').textContent='PREVIOUS END COMPLETE';$('resultText').textContent='Blue '+game.blueScore+' — Red '+game.redScore+'.';
     }else{resetMatch();}
     animate();
   }catch(err){
     console.error(err);$('sceneState').textContent='LOAD ERROR';
     $('statusMain').textContent='The 3D game could not start';
-    $('statusSub').textContent='Check your internet connection and reload. The game loads Three.js and Rapier from public CDNs.';
+    $('statusSub').textContent='The 3D renderer could not start on this browser. Check WebGL support and reload.';
     toast('3D ENGINE ERROR: '+(err.message||'unknown error'));
   }
 }
